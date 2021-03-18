@@ -4,9 +4,13 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bookworm</title>
+    <link rel="stylesheet" href="{{ asset('css/app.css') }}">
     @vite
+    <script>
+        csrfToken = @json(csrf_token())
+    </script>
 </head>
-<body class="antialiased">
+<body>
     <div id="app"></div>
 </body>
 </html>

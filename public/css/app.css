@@ -1,0 +1,32 @@
+body {
+    margin: 0;
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+}
+
+.p-1em {
+    padding: 1em;
+}
+
+.ml-1em {
+    margin-left: 1em;
+}
+
+.mt-1em {
+    margin-top: 1em;
+}
+
+.mb-1em {
+    margin-bottom: 1em;
+}
+
+.d-f {
+    display: flex;
+}
+
+.flex-jc-sb {
+    justify-content: space-between;
+}
+
+.bb {
+   border-bottom: 1px solid lightgrey;
+}
