@@ -13,7 +13,10 @@
                     <a href="/" class="td-n" style="color: black; font-size: 1.1em">Bookworm</a>
                 </div>
                 <router-link to="/" class="ml-1em" active-class="td-n">Home</router-link>
-                <router-link to="/books" class="ml-1em" active-class="td-n">Books</router-link>
+                <router-link to="/manage/books" class="ml-1em" active-class="td-n">Manage Books</router-link>
+                <div class="ml-1em">
+                    <input type="search" placeholder="Find books...">
+                </div>
             </div>
             <div class="ml-1em">
                 <form action="/logout" method="POST" ref="logoutForm">
@@ -30,7 +33,6 @@
 
 <script>
 export default {
-    name: 'Boomkworm',
     computed: {
         csrfToken() {
             return csrfToken

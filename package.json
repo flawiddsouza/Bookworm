@@ -8,13 +8,14 @@
     "devDependencies": {
         "@vitejs/plugin-vue": "^1.1.4",
         "@vue/compiler-sfc": "^3.0.5",
-        "axios": "^0.21",
         "laravel-vite": "^0.0.7",
-        "lodash": "^4.17.19",
-        "postcss": "^8.1.14",
         "vite": "^2.0.1"
     },
     "dependencies": {
+        "@vueform/multiselect": "^1.3.5",
+        "axios": "^0.21.1",
+        "mitt": "^2.1.0",
+        "toastify-js": "^1.9.3",
         "vue": "^3.0.5",
         "vue-router": "^4.0.5"
     }

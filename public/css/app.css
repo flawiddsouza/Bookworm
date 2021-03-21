@@ -1,40 +1,19 @@
+@import "functional.css";
+@import "components.css";
+
+:root {
+    --border-color: lightgrey;
+}
+
+* {
+    box-sizing: border-box;
+}
+
 body {
     margin: 0;
     font-family: Avenir, Helvetica, Arial, sans-serif;
 }
 
-.p-1em {
-    padding: 1em;
-}
-
-.ml-1em {
-    margin-left: 1em;
-}
-
-.mt-1em {
-    margin-top: 1em;
-}
-
-.mb-1em {
-    margin-bottom: 1em;
-}
-
-.d-f {
-    display: flex;
-}
-
-.flex-jc-sb {
-    justify-content: space-between;
-}
-
-.flex-ai-c {
-    align-items: center;
-}
-
-.bb {
-   border-bottom: 1px solid lightgrey;
-}
-
-.td-n {
-    text-decoration: none;
+h1, h2, h3, h4, h5, h6 {
+    margin: 0;
 }
