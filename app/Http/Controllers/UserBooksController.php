@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\UserBook;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class UserBooksController extends Controller
@@ -24,9 +25,15 @@ class UserBooksController extends Controller
                 ),
                 ', '
             ) as author,
-            to_char(user_books.started_reading, '$sqlDateFormat') as started_reading,
-            to_char(user_books.completed_reading, '$sqlDateFormat') as completed_reading,
-            CASE WHEN user_books.rating IS NOT NULL THEN CONCAT(user_books.rating, '/', 5) ELSE null END as rating
+            user_books.status,
+            user_books.started_reading,
+            to_char(user_books.started_reading, '$sqlDateFormat') as started_reading_display,
+            user_books.completed_reading,
+            to_char(user_books.completed_reading, '$sqlDateFormat') as completed_reading_display,
+            user_books.rating,
+            CASE WHEN user_books.rating IS NOT NULL THEN CONCAT(user_books.rating, '/', 5) ELSE null END as rating_display,
+            user_books.private_notes,
+            user_books.public_notes
         ")
         ->join('books', 'books.id', 'user_books.book_id')
         ->join('book_types', 'book_types.id', 'books.book_type_id')
@@ -41,7 +48,7 @@ class UserBooksController extends Controller
         if($request->status === 'READ') {
             $paginator = $paginator->orderBy('user_books.completed_reading', 'DESC');
         } else {
-            $paginator = $paginator->orderBy('books.updated_at', 'DESC');
+            $paginator = $paginator->orderBy('user_books.updated_at', 'DESC');
         }
 
         $paginator = $paginator->paginate(50);
@@ -52,6 +59,29 @@ class UserBooksController extends Controller
             ->where('user_books.user_id', Auth::id())
             ->count()
         ];
+    }
+
+    public function update(Request $request, $id)
+    {
+        DB::beginTransaction();
+
+        try {
+            UserBook::where('id', $id)->update([
+                'reading_medium' => $request->reading_medium,
+                'private_notes' => $request->private_notes,
+                'public_notes' => $request->public_notes,
+                'rating' => $request->rating,
+                'status' => $request->status,
+                'started_reading' => $request->started_reading,
+                'completed_reading' => $request->completed_reading
+            ]);
+
+            DB::commit();
+        } catch(\Throwable $e) {
+            DB::rollBack();
+
+            return response($e->getMessage(), 500);
+        }
     }
 
     public function destroy($id)
