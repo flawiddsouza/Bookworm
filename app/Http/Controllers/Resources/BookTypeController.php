@@ -17,7 +17,7 @@ class BookTypeController extends Controller
     public function index()
     {
         return [
-            'paginator' => BookType::orderBy('sort_order')->paginate(),
+            'paginator' => BookType::orderBy('sort_order')->paginate(50),
             'unfiltered_total' => BookType::count()
         ];
     }

@@ -29,7 +29,7 @@ class ManageSeriesController extends Controller
             ->leftJoin('authors', 'authors.id', 'series_authors.author_id')
             ->groupBy('series.id')
             ->orderBy('series.updated_at', 'DESC')
-            ->paginate(),
+            ->paginate(50),
             'unfiltered_total' => Series::count()
         ];
     }

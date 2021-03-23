@@ -38,7 +38,7 @@ class ManageBooksController extends Controller
             ->leftJoin('series', 'series.id', 'book_series.series_id')
             ->groupBy('books.id', 'book_types.id', 'book_series.id', 'series.id')
             ->orderBy('books.updated_at', 'DESC')
-            ->paginate(),
+            ->paginate(50),
             'unfiltered_total' => Book::count()
         ];
     }

@@ -17,7 +17,7 @@ class AuthorController extends Controller
     public function index()
     {
         return [
-            'paginator' => Author::orderBy('updated_at', 'DESC')->paginate(),
+            'paginator' => Author::orderBy('updated_at', 'DESC')->paginate(50),
             'unfiltered_total' => Author::count()
         ];
     }
