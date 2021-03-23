@@ -116,6 +116,11 @@ class ImportController extends Controller
                         }
                     }
 
+                    // skip if book already exists for user - as it might overwrite new data added through Bookworm
+                    if(UserBook::where('user_id', $userId)->where('book_id', $book->id)->count() > 0) {
+                        continue;
+                    }
+
                     $status = null;
 
                     if($bookToAdd['Exclusive Shelf'] === 'to-read') {
