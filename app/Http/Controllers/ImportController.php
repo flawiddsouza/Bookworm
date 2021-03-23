@@ -29,7 +29,6 @@ class ImportController extends Controller
                 'Author',
                 'Additional Authors',
                 'My Rating',
-                'Date Added',
                 'Date Read',
                 'Exclusive Shelf',
                 'My Review',
@@ -125,7 +124,6 @@ class ImportController extends Controller
 
                     if($bookToAdd['Exclusive Shelf'] === 'to-read') {
                         $status = 'TO_READ';
-                        $bookToAdd['Date Added'] = null;
                         $bookToAdd['Date Read'] = null;
                         $bookToAdd['My Rating'] = null;
                     }
@@ -150,7 +148,7 @@ class ImportController extends Controller
                         'public_notes' => $bookToAdd['My Review'],
                         'rating' => $bookToAdd['My Rating'],
                         'status' => $status,
-                        'started_reading' => $bookToAdd['Date Added'],
+                        'started_reading' => null,
                         'completed_reading' => $bookToAdd['Date Read']
                     ]);
                 }
