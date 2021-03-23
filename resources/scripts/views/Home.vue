@@ -69,6 +69,10 @@ export default {
                     {
                         fieldName: 'Completed Reading',
                         field: 'completed_reading'
+                    },
+                    {
+                        fieldName: 'Rating',
+                        field: 'rating'
                     }
                 ])
             }

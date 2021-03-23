@@ -25,7 +25,8 @@ class UserBooksController extends Controller
                 ', '
             ) as author,
             to_char(user_books.started_reading, '$sqlDateFormat') as started_reading,
-            to_char(user_books.completed_reading, '$sqlDateFormat') as completed_reading
+            to_char(user_books.completed_reading, '$sqlDateFormat') as completed_reading,
+            CASE WHEN user_books.rating IS NOT NULL THEN CONCAT(user_books.rating, '/', 5) ELSE null END as rating
         ")
         ->join('books', 'books.id', 'user_books.book_id')
         ->join('book_types', 'book_types.id', 'books.book_type_id')
