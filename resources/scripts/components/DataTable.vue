@@ -18,7 +18,7 @@
                             <input type="checkbox" v-if="items.length > 0" @change="selectAllCheckboxes" ref="selectAllCheckboxesInput">
                         </th>
                         <th v-if="itemActionsSlotExists" :style="{ width: itemActionsWidth, minWidth: itemActionsWidth }">Actions</th>
-                        <th v-for="field in fields" :class="{ active: sortField === field.field }" @click="sortColumn(field.field)">
+                        <th v-for="field in fields" :class="{ active: sortField === field.field }" :style="{ width: field.width ?? false }" @click="sortColumn(field.field)">
                             {{ field.fieldName }}
                             <span class="arrow" :class="sortOrder === 'asc' ? 'asc' : 'desc'"></span>
                         </th>
@@ -57,8 +57,20 @@
                                     <template v-else>
                                         <td v-if="fieldSubtitutions && fieldSubtitutions[field.field]" :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }">{{ fieldSubtitutions[field.field][item[field.field]] }}</td>
                                         <template v-else>
-                                            <td v-if="fieldHtml && fieldHtml.includes(field.field)" :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }" v-html="item[field.field]"></td>
-                                            <td v-else :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }">{{ item[field.field] }}</td>
+                                            <td v-if="fieldHtml && fieldHtml.includes(field.field)" :style="{
+                                                textAlign: fieldAlign ? fieldAlign[field.field] : false,
+                                                width: field.width ?? false,
+                                                maxWidth: field.width ?? false,
+                                                minWidth: field.width ?? false,
+                                                whiteSpace: field.whiteSpace ?? false
+                                            }" v-html="item[field.field]"></td>
+                                            <td v-else :style="{
+                                                textAlign: fieldAlign ? fieldAlign[field.field] : false,
+                                                width: field.width ?? false,
+                                                maxWidth: field.width ?? false,
+                                                minWidth: field.width ?? false,
+                                                whiteSpace: field.whiteSpace ?? false
+                                            }">{{ item[field.field] }}</td>
                                         </template>
                                     </template>
                                 </template>
@@ -196,6 +208,9 @@ export default {
                         thQuery = 'tr:nth-child(1) th:not(:first-child)'
                     }
                     Array.from(this.$refs.tableBody.querySelectorAll(tdQuery)).forEach((td, tdIndex) => {
+                        if(tdIndex > 0 && td.style.width) {
+                            return
+                        }
                         var width = td.offsetWidth
                         var element = Array.from(this.$refs.tableHead.querySelectorAll(thQuery))[tdIndex]
                         var elementTextWidth = textWidth(element.innerText.trim())
