@@ -14,6 +14,7 @@
                 </div>
                 <router-link to="/" class="ml-1em" active-class="td-n">Home</router-link>
                 <router-link to="/manage/books" class="ml-1em" active-class="td-n">Manage Books</router-link>
+                <router-link to="/import" class="ml-1em" active-class="td-n">Import</router-link>
                 <div class="ml-1em">
                     <input type="search" placeholder="Find books...">
                 </div>

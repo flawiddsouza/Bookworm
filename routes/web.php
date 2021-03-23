@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ImportController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ManageBooksController;
 use App\Http\Controllers\ManageSeriesController;
@@ -26,4 +27,6 @@ Route::group([ 'prefix' => '/json', 'middleware' => 'auth'], function() {
     Route::get('/search/series', [SearchController::class, 'getSeries']);
 
     Route::get('/book-types', [BookTypeController::class, 'getBookTypes']);
+
+    Route::post('/import/goodreads-csv-export', [ImportController::class, 'postImportGoodreadsCSVExport']);
 });
