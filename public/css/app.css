@@ -1,3 +1,4 @@
+@import "reset.css";
 @import "functional.css";
 @import "components.css";
 
@@ -5,15 +6,6 @@
     --border-color: lightgrey;
 }
 
-* {
-    box-sizing: border-box;
-}
-
 body {
-    margin: 0;
     font-family: Avenir, Helvetica, Arial, sans-serif;
-}
-
-h1, h2, h3, h4, h5, h6 {
-    margin: 0;
 }

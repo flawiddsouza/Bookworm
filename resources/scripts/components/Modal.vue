@@ -52,6 +52,9 @@ export default {
     border-radius: 2px;
     box-shadow: 0 19px 38px rgb(0 0 0 / 30%), 0 15px 12px rgb(0 0 0 / 22%);
     min-width: 23rem;
+    max-width: 60%;
+    max-height: 90%;
+    overflow-y: auto;
 }
 
 .modal__close {
