@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Models\BookType;
+use App\Classes\Paginator;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RESTActions;
 
@@ -14,12 +16,19 @@ class BookTypeController extends Controller
     const FIELDS = ['name', 'sort_order'];
     const UNIQUE_FIELDS = ['name'];
 
-    public function index()
+    public function index(Request $request)
     {
-        return [
-            'paginator' => BookType::orderBy('sort_order')->paginate(50),
-            'unfiltered_total' => BookType::count()
-        ];
+        return Paginator::generate(
+            BookType::select('id', 'name', 'sort_order'),
+            [
+                'sortBy' => 'sort_order',
+                'sortOrder' => 'ASC',
+                'filterColumns' => [
+                    'name'
+                ]
+            ],
+            $request
+        );
     }
 
     public function getBookTypes()

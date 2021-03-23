@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\UserBook;
+use App\Classes\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -13,9 +14,11 @@ class UserBooksController extends Controller
     {
         $sqlDateFormat = env('SQL_DATE_FORMAT');
 
-        $paginator = UserBook::selectRaw("
+        $bookColumn = "CASE WHEN series.name IS NOT NULL THEN CONCAT(books.name, ' (', series.name, ' #', book_series.index, ')') ELSE books.name END";
+
+        $query = UserBook::selectRaw("
             user_books.id,
-            CASE WHEN series.name IS NOT NULL THEN CONCAT(books.name, ' (', series.name, ' #', book_series.index, ')') ELSE books.name END as book,
+            $bookColumn as book,
             book_types.name as book_type,
             books.cover_image_url,
             string_agg(
@@ -45,20 +48,18 @@ class UserBooksController extends Controller
         ->where('user_books.user_id', Auth::id())
         ->groupBy('user_books.id', 'series.id', 'books.id', 'book_series.id', 'book_types.id');
 
-        if($request->status === 'READ') {
-            $paginator = $paginator->orderBy('user_books.completed_reading', 'DESC');
-        } else {
-            $paginator = $paginator->orderBy('user_books.updated_at', 'DESC');
-        }
-
-        $paginator = $paginator->paginate(50);
-
-        return [
-            'paginator' => $paginator,
-            'unfiltered_total' => UserBook::where('user_books.status', $request->status)
-            ->where('user_books.user_id', Auth::id())
-            ->count()
-        ];
+        return Paginator::generate(
+            $query,
+            [
+                'sortBy' => $request->status === 'READ' ? 'user_books.completed_reading' : 'user_books.updated_at',
+                'sortOrder' => 'DESC',
+                'filterColumns' => [
+                    DB::raw($bookColumn),
+                    'authors.name'
+                ]
+            ],
+            $request
+        );
     }
 
     public function update(Request $request, $id)

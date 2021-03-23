@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Classes\Paginator;
 use App\Models\BookAuthor;
 use App\Models\BookSeries;
 use Illuminate\Http\Request;
@@ -10,13 +11,15 @@ use Illuminate\Support\Facades\DB;
 
 class ManageBooksController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return [
-            'paginator' => Book::selectRaw("
+        $bookColumn = "CASE WHEN series.name IS NOT NULL THEN CONCAT(books.name, ' (', series.name, ' #', book_series.index, ')') ELSE books.name END";
+
+        return Paginator::generate(
+            Book::selectRaw("
                 books.id,
                 books.name,
-                CASE WHEN series.name IS NOT NULL THEN CONCAT(books.name, ' (', series.name, ' #', book_series.index, ')') ELSE books.name END as display_name,
+                $bookColumn as display_name,
                 books.book_type_id,
                 book_types.name as book_type,
                 books.cover_image_url,
@@ -36,11 +39,17 @@ class ManageBooksController extends Controller
             ->leftJoin('authors', 'authors.id', 'book_authors.author_id')
             ->leftJoin('book_series', 'book_series.book_id', 'books.id')
             ->leftJoin('series', 'series.id', 'book_series.series_id')
-            ->groupBy('books.id', 'book_types.id', 'book_series.id', 'series.id')
-            ->orderBy('books.updated_at', 'DESC')
-            ->paginate(50),
-            'unfiltered_total' => Book::count()
-        ];
+            ->groupBy('books.id', 'book_types.id', 'book_series.id', 'series.id'),
+            [
+                'sort_by' => 'books.updated_at',
+                'sort_order' => 'DESC',
+                'filterColumns' => [
+                    DB::raw($bookColumn),
+                    'authors.name'
+                ]
+            ],
+            $request
+        );
     }
 
     private function stringContains($haystack, $needle)

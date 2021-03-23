@@ -3,18 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Models\Series;
+use App\Classes\Paginator;
 use App\Models\BookSeries;
 use App\Models\SeriesAuthor;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ManageSeriesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        return [
-            'paginator' => Series::selectRaw("
+        return Paginator::generate(
+            Series::selectRaw("
                 series.id,
                 series.name,
                 string_agg(
@@ -27,11 +27,17 @@ class ManageSeriesController extends Controller
             ")
             ->leftJoin('series_authors', 'series_authors.series_id', 'series.id')
             ->leftJoin('authors', 'authors.id', 'series_authors.author_id')
-            ->groupBy('series.id')
-            ->orderBy('series.updated_at', 'DESC')
-            ->paginate(50),
-            'unfiltered_total' => Series::count()
-        ];
+            ->groupBy('series.id'),
+            [
+                'sortBy' => 'series.updated_at',
+                'sortOrder' => 'DESC',
+                'filterColumns' => [
+                    'series.name',
+                    'authors.name'
+                ]
+            ],
+            $request
+        );
     }
 
     private function stringContains($haystack, $needle)

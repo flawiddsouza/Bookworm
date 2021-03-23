@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Resources;
 
 use App\Models\Author;
+use App\Classes\Paginator;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Controllers\Traits\RESTActions;
 
@@ -14,11 +16,18 @@ class AuthorController extends Controller
     const FIELDS = ['name'];
     const UNIQUE_FIELDS = ['name'];
 
-    public function index()
+    public function index(Request $request)
     {
-        return [
-            'paginator' => Author::orderBy('updated_at', 'DESC')->paginate(50),
-            'unfiltered_total' => Author::count()
-        ];
+        return Paginator::generate(
+            Author::select('id', 'name'),
+            [
+                'sortBy' => 'updated_at',
+                'sortOrder' => 'DESC',
+                'filterColumns' => [
+                    'name'
+                ]
+            ],
+            $request
+        );
     }
 }
