@@ -56,6 +56,10 @@ class UserBooksController extends Controller
                 'filterColumns' => [
                     DB::raw($bookColumn),
                     'authors.name'
+                ],
+                'requestSortBySubtitutions' => [
+                    'started_reading_display' => 'started_reading',
+                    'completed_reading_display' => 'completed_reading'
                 ]
             ],
             $request

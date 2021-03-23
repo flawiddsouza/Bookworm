@@ -18,7 +18,8 @@ class Paginator
         }
 
         if($request->sort_by) {
-            $paginator = $paginator->orderBy($request->sort_by, $request->sort_order);
+            $sortByColumn = $params['requestSortBySubtitutions'][$request->sort_by] ?? $request->sort_by;
+            $paginator = $paginator->orderBy($sortByColumn, $request->sort_order);
         } else {
             if(isset($params['sortBy'])) {
                 $paginator = $paginator->orderBy($params['sortBy'], $params['sortOrder']);
