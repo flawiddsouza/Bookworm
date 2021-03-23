@@ -146,6 +146,7 @@ class ManageSeriesController extends Controller
             'books' => BookSeries::where('series_id', $id)
             ->join('books', 'books.id', 'book_series.book_id')
             ->select('book_series.id', 'book_series.book_id', 'book_series.index', 'books.name')
+            ->orderBy('book_series.index')
             ->get()
         ];
     }
