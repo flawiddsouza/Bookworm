@@ -7,6 +7,7 @@ use App\Http\Controllers\ManageBooksController;
 use App\Http\Controllers\ManageSeriesController;
 use App\Http\Controllers\Resources\AuthorController;
 use App\Http\Controllers\Resources\BookTypeController;
+use App\Http\Controllers\UserBooksController;
 
 Route::get('/', function () {
     return view('app');
@@ -29,4 +30,6 @@ Route::group([ 'prefix' => '/json', 'middleware' => 'auth'], function() {
     Route::get('/book-types', [BookTypeController::class, 'getBookTypes']);
 
     Route::post('/import/goodreads-csv-export', [ImportController::class, 'postImportGoodreadsCSVExport']);
+
+    Route::resource('/user/books', UserBooksController::class);
 });
