@@ -151,7 +151,22 @@ class ManageSeriesController extends Controller
             ->get(),
             'books' => BookSeries::where('series_id', $id)
             ->join('books', 'books.id', 'book_series.book_id')
-            ->select('book_series.id', 'book_series.book_id', 'book_series.index', 'books.name')
+            ->leftJoin('book_authors', 'book_authors.book_id', 'books.id')
+            ->leftJoin('authors', 'authors.id', 'book_authors.author_id')
+            ->selectRaw("
+                book_series.id,
+                book_series.book_id,
+                book_series.index,
+                books.name,
+                string_agg(
+                    concat(
+                        authors.name,
+                        CASE WHEN book_authors.role IS NOT NULL THEN CONCAT(' (', book_authors.role, ')') ELSE '' END
+                    ),
+                    ', '
+                ) as author
+            ")
+            ->groupBy('book_series.id', 'books.id')
             ->orderBy('book_series.index')
             ->get()
         ];

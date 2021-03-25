@@ -20,8 +20,22 @@ class SearchController extends Controller
 
     public function getBooks(Request $request)
     {
-        return Book::select('id', 'name')
-        ->where('name', 'ilike', '%' . $request->q . '%')
+        return Book::selectRaw("
+            books.id,
+            books.name,
+            string_agg(
+                concat(
+                    authors.name,
+                    CASE WHEN book_authors.role IS NOT NULL THEN CONCAT(' (', book_authors.role, ')') ELSE '' END
+                ),
+                ', '
+            ) as author
+        ")
+        ->leftJoin('book_authors', 'book_authors.book_id', 'books.id')
+        ->leftJoin('authors', 'authors.id', 'book_authors.author_id')
+        ->where('books.name', 'ilike', '%' . $request->q . '%')
+        ->orWhere('authors.name', 'ilike', '%' . $request->q . '%')
+        ->groupBy('books.id')
         ->orderBy('name')
         ->limit(10)
         ->get();

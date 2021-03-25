@@ -196,7 +196,7 @@ export default {
                 this.selectBooks = this.books.map(book => {
                     return {
                         value: book.book_id,
-                        label: book.name
+                        label: book.name + ' by ' + book.author
                     }
                 })
                 loader.hide()
@@ -234,7 +234,7 @@ export default {
             this.selectBooks = books.map(book => {
                 return {
                     value: book.id,
-                    label: book.name
+                    label: book.name + ' by ' + book.author
                 }
             })
         }
