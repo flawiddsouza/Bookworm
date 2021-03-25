@@ -1,13 +1,14 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\BookController;
 use App\Http\Controllers\ImportController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\UserBooksController;
 use App\Http\Controllers\ManageBooksController;
 use App\Http\Controllers\ManageSeriesController;
 use App\Http\Controllers\Resources\AuthorController;
 use App\Http\Controllers\Resources\BookTypeController;
-use App\Http\Controllers\UserBooksController;
 
 Route::get('/', function () {
     return view('app');
@@ -32,4 +33,7 @@ Route::group([ 'prefix' => '/json', 'middleware' => 'auth'], function() {
     Route::post('/import/goodreads-csv-export', [ImportController::class, 'postImportGoodreadsCSVExport']);
 
     Route::resource('/user/books', UserBooksController::class);
+
+    Route::get('/books/{id}', [BookController::class, 'getBook']);
+    Route::post('/books/{id}', [BookController::class, 'postBook']);
 });

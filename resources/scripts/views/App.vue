@@ -16,7 +16,11 @@
                 <router-link to="/manage/books" class="ml-1em" active-class="td-n">Manage Books</router-link>
                 <router-link to="/import" class="ml-1em" active-class="td-n">Import</router-link>
                 <div class="ml-1em">
-                    <input type="search" placeholder="Find books...">
+                    <SearchBox placeholder="Find books..." url="/json/search/books">
+                        <template #default="{ result }">
+                            <div @click="loadBook(result.id)">{{ result.name }} by {{ result.author }}</div>
+                        </template>
+                    </SearchBox>
                 </div>
             </div>
             <div class="ml-1em">
@@ -29,14 +33,38 @@
         <div class="p-1em">
             <router-view></router-view>
         </div>
+        <Modal v-model:showModal="showModal" v-if="showModal">
+            <Book :book-id="selectedBookId"></Book>
+        </Modal>
     </div>
 </template>
 
 <script>
+import SearchBox from '@/scripts/components/SearchBox.vue'
+import Modal from '@/scripts/components/Modal.vue'
+import Book from '@/scripts/views/Book.vue'
+
 export default {
+    components: {
+        SearchBox,
+        Modal,
+        Book
+    },
+    data() {
+        return {
+            selectedBookId: null,
+            showModal: false
+        }
+    },
     computed: {
         csrfToken() {
             return csrfToken
+        }
+    },
+    methods: {
+        loadBook(bookId) {
+            this.selectedBookId = bookId
+            this.showModal = true
         }
     }
 }

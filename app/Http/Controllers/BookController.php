@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Book;
 use App\Models\UserBook;
-use App\Classes\Paginator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
-class UserBooksController extends Controller
+class BookController extends Controller
 {
-    public function index(Request $request)
+    public function getBook($id)
     {
         $sqlDateFormat = env('SQL_DATE_FORMAT');
 
         $bookColumn = "CASE WHEN series.name IS NOT NULL THEN CONCAT(books.name, ' (', series.name, ' #', book_series.index, ')') ELSE books.name END";
 
-        $query = UserBook::selectRaw("
-            user_books.id,
+        return Book::selectRaw("
+            books.id,
             $bookColumn as book,
             book_types.name as book_type,
             books.cover_image_url,
@@ -38,40 +38,29 @@ class UserBooksController extends Controller
             user_books.private_notes,
             user_books.public_notes
         ")
-        ->join('books', 'books.id', 'user_books.book_id')
-        ->join('book_types', 'book_types.id', 'books.book_type_id')
+        ->leftJoin('user_books', function($join) {
+            $join->on('user_books.book_id', 'books.id');
+            $join->where('user_books.user_id', Auth::id());
+        })->join('book_types', 'book_types.id', 'books.book_type_id')
         ->leftJoin('book_authors', 'book_authors.book_id', 'books.id')
         ->leftJoin('authors', 'authors.id', 'book_authors.author_id')
         ->leftJoin('book_series', 'book_series.book_id', 'books.id')
         ->leftJoin('series', 'series.id', 'book_series.series_id')
-        ->where('user_books.status', $request->status)
-        ->where('user_books.user_id', Auth::id())
-        ->groupBy('user_books.id', 'series.id', 'books.id', 'book_series.id', 'book_types.id');
-
-        return Paginator::generate(
-            $query,
-            [
-                'sortBy' => $request->status === 'READ' ? 'user_books.completed_reading' : 'user_books.updated_at',
-                'sortOrder' => 'DESC',
-                'filterColumns' => [
-                    DB::raw($bookColumn),
-                    'authors.name'
-                ],
-                'requestSortBySubtitutions' => [
-                    'started_reading_display' => 'started_reading',
-                    'completed_reading_display' => 'completed_reading'
-                ]
-            ],
-            $request
-        );
+        ->where('books.id', $id)
+        ->groupBy('user_books.id', 'series.id', 'books.id', 'book_series.id', 'book_types.id')
+        ->first();
     }
 
-    public function update(Request $request, $id)
+    public function postBook(Request $request, $id)
     {
         DB::beginTransaction();
 
         try {
-            UserBook::where('id', $id)->where('user_id', Auth::id())->update([
+            UserBook::updateOrCreate([
+                'user_id' => Auth::id(),
+                'book_id' => $id
+            ],
+            [
                 'reading_medium' => $request->reading_medium,
                 'private_notes' => $request->private_notes,
                 'public_notes' => $request->public_notes,
@@ -87,10 +76,5 @@ class UserBooksController extends Controller
 
             return response($e->getMessage(), 500);
         }
-    }
-
-    public function destroy($id)
-    {
-        UserBook::where('id', $id)->where('user_id', Auth::id())->delete();
     }
 }
