@@ -41,8 +41,8 @@ class ManageBooksController extends Controller
             ->leftJoin('series', 'series.id', 'book_series.series_id')
             ->groupBy('books.id', 'book_types.id', 'book_series.id', 'series.id'),
             [
-                'sort_by' => 'books.updated_at',
-                'sort_order' => 'DESC',
+                'sortBy' => 'books.updated_at',
+                'sortOrder' => 'DESC',
                 'filterColumns' => [
                     DB::raw($bookColumn),
                     'authors.name'
