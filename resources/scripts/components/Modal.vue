@@ -68,5 +68,6 @@ export default {
     font-weight: 700;
     margin-right: 2rem;
     margin-bottom: 1rem;
+    max-width: 31em;
 }
 </style>
