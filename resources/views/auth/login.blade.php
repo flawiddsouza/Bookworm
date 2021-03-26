@@ -16,6 +16,12 @@
     </div>
 
     <div class="mt-1em">
+        <label>
+            <input type="checkbox" name="remember"> Keep me logged in forever
+        </label>
+    </div>
+
+    <div class="mt-1em">
         <button>Login</button> <a href="{{ route('password.request') }}" class="ml-1em">{{ __('Forgot your password?') }}</a>
     </div>
 
