@@ -36,7 +36,8 @@ class BookController extends Controller
             user_books.rating,
             CASE WHEN user_books.rating IS NOT NULL THEN CONCAT(user_books.rating, '/', 5) ELSE null END as rating_display,
             user_books.private_notes,
-            user_books.public_notes
+            user_books.public_notes,
+            user_books.reading_medium
         ")
         ->leftJoin('user_books', function($join) {
             $join->on('user_books.book_id', 'books.id');

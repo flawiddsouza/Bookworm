@@ -141,6 +141,13 @@ export default {
                 })
             }
 
+            if(this.activeTab === 'CURRENTLY_READING' || this.activeTab === 'READ') {
+                fields.push({
+                    fieldName: 'Reading Medium',
+                    field: 'reading_medium'
+                })
+            }
+
             // fields.push(...[
             //     {
             //         fieldName: 'Private Notes',
