@@ -6,7 +6,7 @@
         <div>
             <DataTable :fields="fields" :field-html="fieldHtml" :route="`/json/user/books?status=${activeTab}`" item-actions-width="15em" :bus="bus">
                 <template #item-actions="{ item }">
-                    <button>View</button>
+                    <button @click="viewBook(item.book_id)">View</button>
                     <button class="ml-0_5em" @click="startEdit(item)">Edit</button>
                     <button class="ml-0_5em" @click="deleteItem(item)">Delete</button>
                 </template>
@@ -176,6 +176,9 @@ export default {
         }
     },
     methods: {
+        viewBook(bookId) {
+            this.$router.push({ path: `/book/${bookId}` })
+        },
         startEdit(item) {
             this.book = JSON.parse(JSON.stringify(item))
             this.showModal = true

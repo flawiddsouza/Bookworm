@@ -5,7 +5,7 @@
                 <button @click="showModal = true">+ Add Book</button>
             </template>
             <template #item-actions="{ item }">
-                <button>View</button>
+                <button @click="viewBook(item.id)">View</button>
                 <button class="ml-0_5em" @click="startEdit(item)">Edit</button>
                 <button class="ml-0_5em" @click="deleteItem(item)">Delete</button>
             </template>
@@ -189,6 +189,9 @@ export default {
                     this.$snotify.error(response.data)
                 })
             }
+        },
+        viewBook(bookId) {
+            this.$router.push({ path: `/book/${bookId}` })
         },
         startEdit(item) {
             this.book = JSON.parse(JSON.stringify(item))

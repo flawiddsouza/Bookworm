@@ -70,8 +70,17 @@ export default {
     },
     methods: {
         fetchBook() {
+            let loader = this.$loading.show()
             axios.get(`/json/books/${this.bookId}`).then(response => {
                 this.book = response.data
+                // trigger input events for textareas, as this.book = doesn't seem to trigger the event on any of the textareas
+                // the input event helps trigger resize on resizable textareas
+                this.$nextTick(() => {
+                    Array.from(document.querySelectorAll('textarea')).forEach(textarea => {
+                        textarea.dispatchEvent(new Event('input'))
+                    })
+                })
+                loader.hide()
             })
         },
         saveBook() {

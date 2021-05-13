@@ -6,6 +6,7 @@ import ManageAuthors from '@/scripts/views/ManageAuthors.vue'
 import ManageSeries from '@/scripts/views/ManageSeries.vue'
 import ManageBookTypes from '@/scripts/views/ManageBookTypes.vue'
 import Import from '@/scripts/views/Import.vue'
+import Book from '@/scripts/views/Book.vue'
 
 const routes = [
     { path: '/', component: Home },
@@ -14,6 +15,11 @@ const routes = [
     { path: '/manage/series', component: ManageSeries },
     { path: '/manage/book-types', component: ManageBookTypes },
     { path: '/import', component: Import },
+    {
+        path: '/book/:id',
+        component: Book,
+        props: route => ({ bookId: route.params.id })
+    },
 ]
 
 const router = createRouter({
