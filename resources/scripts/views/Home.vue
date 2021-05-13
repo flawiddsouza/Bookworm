@@ -36,7 +36,9 @@
                 </div>
                 <div class="mt-1em">
                     <label>Rating<br>
-                        <input type="number" step="0.5" v-model="book.rating" class="w-100p">
+                        <select v-model="book.rating" class="w-100p">
+                            <option v-for="rating in ratings" :value="rating.rating">{{ rating.description }}</option>
+                        </select>
                     </label>
                 </div>
                 <div class="mt-1em">
@@ -70,6 +72,7 @@ import DataTable from '@/scripts/components/DataTable.vue'
 import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
 import ResizableTextarea from '@/scripts/components/ResizableTextarea.vue'
+import { ratings } from '@/scripts/sharedData'
 
 export default {
     components: {
@@ -97,7 +100,8 @@ export default {
             bus: mitt(),
             fieldHtml: ['private_notes', 'public_notes'],
             showModal: false,
-            book: {}
+            book: {},
+            ratings
         }
     },
     computed: {
