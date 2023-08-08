@@ -21,6 +21,7 @@
                             <option value="TO_READ">To Read</option>
                             <option value="CURRENTLY_READING">Currently Reading</option>
                             <option value="READ">Read</option>
+                            <option value="ABANDONED">Abandoned</option>
                         </select>
                     </label>
                 </div>
@@ -94,6 +95,10 @@ export default {
                 {
                     name: 'To Read',
                     filter: 'TO_READ'
+                },
+                {
+                    name: 'Abandoned',
+                    filter: 'ABANDONED'
                 }
             ],
             activeTab: 'CURRENTLY_READING',

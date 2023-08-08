@@ -7,6 +7,7 @@
                     <option value="TO_READ">To Read</option>
                     <option value="CURRENTLY_READING">Currently Reading</option>
                     <option value="READ">Read</option>
+                    <option value="ABANDONED">Abandoned</option>
                 </select>
             </label>
         </div>
