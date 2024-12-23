@@ -1,5 +1,5 @@
 <template>
-    <form @submit.prevent="saveBook">
+    <form @submit.prevent="saveBook" v-if="loaded">
         <h3>{{ book.book }} by {{ book.author}}</h3>
         <div class="mt-1em">
             <label>Status<br>
@@ -65,6 +65,7 @@ export default {
     },
     data() {
         return {
+            loaded: false,
             book: {},
             ratings
         }
@@ -74,6 +75,7 @@ export default {
             let loader = this.$loading.show()
             axios.get(`/json/books/${this.bookId}`).then(response => {
                 this.book = response.data
+                this.loaded = true
                 // trigger input events for textareas, as this.book = doesn't seem to trigger the event on any of the textareas
                 // the input event helps trigger resize on resizable textareas
                 this.$nextTick(() => {
