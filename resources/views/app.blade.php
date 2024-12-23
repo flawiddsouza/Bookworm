@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Bookworm</title>
     <link rel="stylesheet" href="{{ asset('css/app.css') }}">
-    @vite
+    @vite('resources/scripts/main.js')
     <script>
         csrfToken = @json(csrf_token())
     </script>

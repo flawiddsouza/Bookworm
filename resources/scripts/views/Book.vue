@@ -54,7 +54,7 @@
 
 <script>
 import ResizableTextarea from '@/scripts/components/ResizableTextarea.vue'
-import { ratings } from '@/scripts/sharedData'
+import { ratings } from '@/scripts/sharedData.js'
 
 export default {
     components: {

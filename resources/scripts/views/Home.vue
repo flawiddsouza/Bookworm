@@ -73,7 +73,7 @@ import DataTable from '@/scripts/components/DataTable.vue'
 import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
 import ResizableTextarea from '@/scripts/components/ResizableTextarea.vue'
-import { ratings } from '@/scripts/sharedData'
+import { ratings } from '@/scripts/sharedData.js'
 
 export default {
     components: {
