@@ -1,9 +1,12 @@
 <template>
     <div>
-        <div class="tabs mb-1em">
-            <router-link :to="`/manage/${link.slug}`" custom v-slot="{ navigate, isActive }" v-for="link in links">
-                <div :class="{ 'tab-active': isActive }" @click="navigate">{{ link.label }}</div>
-            </router-link>
+        <div class="d-f flex-jc-sb flex-ai-c mb-1em">
+            <div class="tabs">
+                <router-link :to="`/manage/${link.slug}`" custom v-slot="{ navigate, isActive }" v-for="link in links">
+                    <div :class="{ 'tab-active': isActive }" @click="navigate">{{ link.label }}</div>
+                </router-link>
+            </div>
+            <slot name="right-tabs"></slot>
         </div>
         <slot></slot>
     </div>

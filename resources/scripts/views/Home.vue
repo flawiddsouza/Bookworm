@@ -1,16 +1,29 @@
 <template>
     <div>
-        <div class="tabs mb-1em">
-            <div @click="activeTab = tab.filter" :class="{ 'tab-active': activeTab === tab.filter }" v-for="tab in tabs">{{ tab.name }}</div>
+        <div class="d-f flex-jc-sb flex-ai-c mb-1em">
+            <div class="tabs">
+                <div @click="activeTab = tab.filter" :class="{ 'tab-active': activeTab === tab.filter }" v-for="tab in tabs">{{ tab.name }}</div>
+            </div>
+            <div class="tabs">
+                <div @click="viewMode = 'table'" :class="{ 'tab-active': viewMode === 'table' }">Table</div>
+                <div @click="viewMode = 'grid'" :class="{ 'tab-active': viewMode === 'grid' }">Grid</div>
+            </div>
         </div>
         <div>
-            <DataTable :fields="fields" :field-html="fieldHtml" :route="`/json/user/books?status=${activeTab}`" item-actions-width="15em" :bus="bus">
+            <DataTable v-if="viewMode === 'table'" :fields="fields" :field-html="fieldHtml" :route="`/json/user/books?status=${activeTab}`" item-actions-width="15em" :bus="bus">
                 <template #item-actions="{ item }">
                     <button @click="viewBook(item.book_id)">View</button>
                     <button class="ml-0_5em" @click="startEdit(item)">Edit</button>
                     <button class="ml-0_5em" @click="deleteItem(item)">Delete</button>
                 </template>
             </DataTable>
+            <GridView v-else :route="`/json/user/books?status=${activeTab}`" :bus="bus">
+                <template #item-actions="{ item }">
+                    <button @click="viewBook(item.book_id)">View</button>
+                    <button class="ml-0_5em" @click="startEdit(item)">Edit</button>
+                    <button class="ml-0_5em" @click="deleteItem(item)">Delete</button>
+                </template>
+            </GridView>
         </div>
         <Modal v-model:showModal="showModal">
             <template #title>{{ book.book }} by {{ book.author }}</template>
@@ -70,6 +83,7 @@
 
 <script>
 import DataTable from '@/scripts/components/DataTable.vue'
+import GridView from '@/scripts/components/GridView.vue'
 import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
 import ResizableTextarea from '@/scripts/components/ResizableTextarea.vue'
@@ -78,6 +92,7 @@ import { ratings } from '@/scripts/sharedData.js'
 export default {
     components: {
         DataTable,
+        GridView,
         Modal,
         ResizableTextarea
     },
@@ -102,6 +117,7 @@ export default {
                 }
             ],
             activeTab: 'CURRENTLY_READING',
+            viewMode: 'table',
             bus: mitt(),
             fieldHtml: ['private_notes', 'public_notes'],
             showModal: false,
@@ -178,6 +194,9 @@ export default {
     watch: {
         activeTab() {
             localStorage.setItem('Bookworm-Home-ActiveTab', this.activeTab)
+        },
+        viewMode() {
+            localStorage.setItem('Bookworm-Home-ViewMode', this.viewMode)
         }
     },
     methods: {
@@ -218,9 +237,13 @@ export default {
     },
     created() {
         let activeTab = localStorage.getItem('Bookworm-Home-ActiveTab')
+        let viewMode = localStorage.getItem('Bookworm-Home-ViewMode')
 
         if(activeTab) {
             this.activeTab = activeTab
+        }
+        if(viewMode) {
+            this.viewMode = viewMode
         }
     }
 }

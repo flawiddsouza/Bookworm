@@ -1,6 +1,12 @@
 <template>
     <ManageContainer>
-        <DataTable :fields="fields" route="/json/manage-books" item-actions-width="10em" :bus="bus">
+        <template #right-tabs>
+            <div class="tabs">
+                <div @click="viewMode = 'table'" :class="{ 'tab-active': viewMode === 'table' }">Table</div>
+                <div @click="viewMode = 'grid'" :class="{ 'tab-active': viewMode === 'grid' }">Grid</div>
+            </div>
+        </template>
+        <DataTable v-if="viewMode === 'table'" :fields="fields" route="/json/manage-books" item-actions-width="10em" :bus="bus">
             <template #actions>
                 <button @click="showModal = true">+ Add Book</button>
             </template>
@@ -10,6 +16,16 @@
                 <button class="ml-0_5em" @click="deleteItem(item)">Delete</button>
             </template>
         </DataTable>
+        <GridView v-else route="/json/manage-books" :bus="bus">
+            <template #actions>
+                <button @click="showModal = true">+ Add Book</button>
+            </template>
+            <template #item-actions="{ item }">
+                <button @click="viewBook(item.id)">View</button>
+                <button class="ml-0_5em" @click="startEdit(item)">Edit</button>
+                <button class="ml-0_5em" @click="deleteItem(item)">Delete</button>
+            </template>
+        </GridView>
         <Modal v-model:showModal="showModal">
             <template #title>{{ modalLabel }} Book</template>
             <form @submit.prevent="addBook">
@@ -118,6 +134,7 @@
 <script>
 import ManageContainer from './ManageContainer.vue'
 import DataTable from '@/scripts/components/DataTable.vue'
+import GridView from '@/scripts/components/GridView.vue'
 import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
 import Multiselect from '@vueform/multiselect'
@@ -127,6 +144,7 @@ export default {
     components: {
         ManageContainer,
         DataTable,
+        GridView,
         Modal,
         Multiselect
     },
@@ -147,6 +165,7 @@ export default {
                 }
             ],
             bus: mitt(),
+            viewMode: 'table',
             showModal: false,
             book: {},
             authors: [{}],
@@ -185,6 +204,9 @@ export default {
                 this.newAuthor = {}
                 this.currentAuthorIndex = null
             }
+        },
+        viewMode() {
+            localStorage.setItem('Bookworm-ManageBooks-ViewMode', this.viewMode)
         }
     },
     methods: {
@@ -320,6 +342,11 @@ export default {
     },
     created() {
         this.fetchBookTypes()
+
+        let viewMode = localStorage.getItem('Bookworm-ManageBooks-ViewMode')
+        if(viewMode) {
+            this.viewMode = viewMode
+        }
     }
 }
 </script>
