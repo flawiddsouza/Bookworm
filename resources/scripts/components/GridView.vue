@@ -248,18 +248,25 @@ export default {
 .card-content {
     padding: 1rem;
     flex: 1;
+    display: flex;
+    align-items: flex-start;
+    gap: 1rem;
 }
 
 .card-image {
-    text-align: center;
-    margin-bottom: 0.75rem;
+    flex-shrink: 0;
+    width: 80px;
 }
 
 .card-image img {
-    max-width: 80px;
+    width: 100%;
     max-height: 120px;
     object-fit: cover;
     border-radius: 4px;
+}
+
+.card-details {
+    flex: 1;
 }
 
 .card-details h3 {
