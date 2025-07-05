@@ -1,13 +1,16 @@
 <template>
     <div>
         <div class="d-f flex-jc-sb flex-ai-c mb-1em">
-            <div class="tabs">
-                <div @click="activeTab = tab.filter" :class="{ 'tab-active': activeTab === tab.filter }" v-for="tab in tabs">{{ tab.name }}</div>
-            </div>
-            <div class="tabs">
-                <div @click="viewMode = 'table'" :class="{ 'tab-active': viewMode === 'table' }">Table</div>
-                <div @click="viewMode = 'grid'" :class="{ 'tab-active': viewMode === 'grid' }">Grid</div>
-            </div>
+            <Tabs
+                :tabs="tabs"
+                v-model="activeTab"
+                value-key="filter"
+                label-key="name"
+            />
+            <Tabs
+                :tabs="viewModeOptions"
+                v-model="viewMode"
+            />
         </div>
         <div>
             <DataTable v-if="viewMode === 'table'" :fields="fields" :field-html="fieldHtml" :route="`/json/user/books?status=${activeTab}`" item-actions-width="15em" :bus="bus">
@@ -87,6 +90,7 @@ import GridView from '@/scripts/components/GridView.vue'
 import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
 import ResizableTextarea from '@/scripts/components/ResizableTextarea.vue'
+import Tabs from '@/scripts/components/Tabs.vue'
 import { ratings } from '@/scripts/sharedData.js'
 
 export default {
@@ -94,7 +98,8 @@ export default {
         DataTable,
         GridView,
         Modal,
-        ResizableTextarea
+        ResizableTextarea,
+        Tabs
     },
     data() {
         return {
@@ -117,6 +122,10 @@ export default {
                 }
             ],
             activeTab: 'CURRENTLY_READING',
+            viewModeOptions: [
+                { value: 'table', label: 'Table' },
+                { value: 'grid', label: 'Grid' }
+            ],
             viewMode: 'table',
             bus: mitt(),
             fieldHtml: ['private_notes', 'public_notes'],

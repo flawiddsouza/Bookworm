@@ -1,10 +1,10 @@
 <template>
     <ManageContainer>
         <template #right-tabs>
-            <div class="tabs">
-                <div @click="viewMode = 'table'" :class="{ 'tab-active': viewMode === 'table' }">Table</div>
-                <div @click="viewMode = 'grid'" :class="{ 'tab-active': viewMode === 'grid' }">Grid</div>
-            </div>
+            <Tabs
+                :tabs="viewModeOptions"
+                v-model="viewMode"
+            />
         </template>
         <DataTable v-if="viewMode === 'table'" :fields="fields" route="/json/manage-books" item-actions-width="10em" :bus="bus">
             <template #actions>
@@ -137,6 +137,7 @@ import DataTable from '@/scripts/components/DataTable.vue'
 import GridView from '@/scripts/components/GridView.vue'
 import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
+import Tabs from '@/scripts/components/Tabs.vue'
 import Multiselect from '@vueform/multiselect'
 import '@vueform/multiselect/themes/default.css'
 
@@ -146,6 +147,7 @@ export default {
         DataTable,
         GridView,
         Modal,
+        Tabs,
         Multiselect
     },
     data() {
@@ -165,6 +167,10 @@ export default {
                 }
             ],
             bus: mitt(),
+            viewModeOptions: [
+                { value: 'table', label: 'Table' },
+                { value: 'grid', label: 'Grid' }
+            ],
             viewMode: 'table',
             showModal: false,
             book: {},
