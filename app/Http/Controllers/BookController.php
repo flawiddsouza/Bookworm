@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\Formatter;
 use App\Models\Book;
 use App\Models\UserBook;
 use Illuminate\Http\Request;
@@ -14,19 +15,28 @@ class BookController extends Controller
     {
         $sqlDateFormat = env('SQL_DATE_FORMAT');
 
-        $bookColumn = "CASE WHEN series.name IS NOT NULL THEN CONCAT(books.name, ' (', series.name, ' #', book_series.index, ')') ELSE books.name END";
-
-        return Book::selectRaw("
+        $book = Book::selectRaw("
             books.id,
-            $bookColumn as book,
+            books.name,
             book_types.name as book_type,
             books.cover_image_url,
+            CASE
+                WHEN COUNT(book_series.series_id) > 0 THEN
+                    json_agg(
+                        json_build_object(
+                            'name', series.name,
+                            'index', book_series.index
+                        )
+                    ) FILTER (WHERE series.name IS NOT NULL)
+                ELSE '[]'::json
+            END as series_info,
             string_agg(
                 concat(
                     authors.name,
                     CASE WHEN book_authors.role IS NOT NULL THEN CONCAT(' (', book_authors.role, ')') ELSE '' END
                 ),
                 ', '
+                ORDER BY book_authors.id
             ) as author,
             user_books.status,
             user_books.started_reading,
@@ -48,8 +58,60 @@ class BookController extends Controller
         ->leftJoin('book_series', 'book_series.book_id', 'books.id')
         ->leftJoin('series', 'series.id', 'book_series.series_id')
         ->where('books.id', $id)
-        ->groupBy('user_books.id', 'series.id', 'books.id', 'book_series.id', 'book_types.id')
+        ->groupBy('user_books.id', 'books.id', 'book_types.id')
         ->first();
+
+        if ($book) {
+            $book->series_info = $book->series_info ? json_decode($book->series_info, true) : [];
+
+            // Remove duplicates from series_info
+            if (!empty($book->series_info)) {
+                $unique_series = [];
+                $seen = [];
+
+                foreach ($book->series_info as $series) {
+                    $key = $series['name'] . '_' . $series['index'];
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        $unique_series[] = $series;
+                    }
+                }
+
+                usort($unique_series, function($a, $b) {
+                    return $a['index'] <=> $b['index'];
+                });
+
+                $book->series_info = $unique_series;
+            }
+
+            // Remove duplicate authors while maintaining order
+            if (!empty($book->author)) {
+                $authors = explode(', ', $book->author);
+                $unique_authors = [];
+                $seen_authors = [];
+
+                foreach ($authors as $author) {
+                    if (!isset($seen_authors[$author])) {
+                        $seen_authors[$author] = true;
+                        $unique_authors[] = $author;
+                    }
+                }
+
+                $book->author = implode(', ', $unique_authors);
+            }
+
+            $book->series_display_name = Formatter::formatSeriesInfo($book->series_info);
+            $book->display_name = $book->name;
+
+            if (!empty($book->series_display_name)) {
+                $book->display_name .= ' (' . $book->series_display_name . ')';
+            }
+
+            // Update the book field to use the new display_name for backward compatibility
+            $book->book = $book->display_name;
+        }
+
+        return $book;
     }
 
     public function postBook(Request $request, $id)

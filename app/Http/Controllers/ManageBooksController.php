@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Classes\Formatter;
 use App\Models\Book;
 use App\Classes\Paginator;
 use App\Models\BookAuthor;
@@ -15,23 +16,31 @@ class ManageBooksController extends Controller
     {
         $bookColumn = "CASE WHEN series.name IS NOT NULL THEN CONCAT(books.name, ' (', series.name, ' #', book_series.index, ')') ELSE books.name END";
 
-        return Paginator::generate(
+        $result = Paginator::generate(
             Book::selectRaw("
                 books.id,
                 books.name,
-                $bookColumn as display_name,
                 books.book_type_id,
                 book_types.name as book_type,
                 books.cover_image_url,
-                book_series.series_id as series_id,
-                book_series.index as series_index,
-                series.name as series_name,
+                MIN(book_series.series_id) as series_id,
+                CASE
+                    WHEN COUNT(book_series.series_id) > 0 THEN
+                        json_agg(
+                            json_build_object(
+                                'name', series.name,
+                                'index', book_series.index
+                            )
+                        ) FILTER (WHERE series.name IS NOT NULL)
+                    ELSE '[]'::json
+                END as series_info,
                 string_agg(
                     concat(
                         authors.name,
                         CASE WHEN book_authors.role IS NOT NULL THEN CONCAT(' (', book_authors.role, ')') ELSE '' END
                     ),
                     ', '
+                    ORDER BY book_authors.id
                 ) as author
             ")
             ->join('book_types', 'book_types.id', 'books.book_type_id')
@@ -39,7 +48,7 @@ class ManageBooksController extends Controller
             ->leftJoin('authors', 'authors.id', 'book_authors.author_id')
             ->leftJoin('book_series', 'book_series.book_id', 'books.id')
             ->leftJoin('series', 'series.id', 'book_series.series_id')
-            ->groupBy('books.id', 'book_types.id', 'book_series.id', 'series.id'),
+            ->groupBy('books.id', 'book_types.id'),
             [
                 'sortBy' => 'books.updated_at',
                 'sortOrder' => 'DESC',
@@ -50,6 +59,57 @@ class ManageBooksController extends Controller
             ],
             $request
         );
+
+        $result['paginator']->transform(function($item) {
+            $item->series_info = $item->series_info ? json_decode($item->series_info, true) : [];
+
+            // Remove duplicates from series_info
+            if (!empty($item->series_info)) {
+                $unique_series = [];
+                $seen = [];
+
+                foreach ($item->series_info as $series) {
+                    $key = $series['name'] . '_' . $series['index'];
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        $unique_series[] = $series;
+                    }
+                }
+
+                usort($unique_series, function($a, $b) {
+                    return $a['index'] <=> $b['index'];
+                });
+
+                $item->series_info = $unique_series;
+            }
+
+            // Remove duplicate authors while maintaining order
+            if (!empty($item->author)) {
+                $authors = explode(', ', $item->author);
+                $unique_authors = [];
+                $seen_authors = [];
+
+                foreach ($authors as $author) {
+                    if (!isset($seen_authors[$author])) {
+                        $seen_authors[$author] = true;
+                        $unique_authors[] = $author;
+                    }
+                }
+
+                $item->author = implode(', ', $unique_authors);
+            }
+
+            $item->series_display_name = Formatter::formatSeriesInfo($item->series_info);
+            $item->display_name = $item->name;
+
+            if (!empty($item->series_display_name)) {
+                $item->display_name .= ' (' . $item->series_display_name . ')';
+            }
+
+            return $item;
+        });
+
+        return $result;
     }
 
     private function stringContains($haystack, $needle)

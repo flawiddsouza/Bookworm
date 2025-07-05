@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\UserBook;
 use App\Classes\Paginator;
+use App\Classes\Formatter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -14,49 +15,56 @@ class UserBooksController extends Controller
     {
         $sqlDateFormat = env('SQL_DATE_FORMAT');
 
-        $bookColumn = "CASE WHEN series.name IS NOT NULL THEN CONCAT(books.name, ' (', series.name, ' #', book_series.index, ')') ELSE books.name END";
-
-        $query = UserBook::selectRaw("
-            user_books.id,
-            $bookColumn as book,
-            book_types.name as book_type,
-            books.cover_image_url,
-            string_agg(
-                concat(
-                    authors.name,
-                    CASE WHEN book_authors.role IS NOT NULL THEN CONCAT(' (', book_authors.role, ')') ELSE '' END
-                ),
-                ', '
-            ) as author,
-            user_books.status,
-            user_books.started_reading,
-            to_char(user_books.started_reading, '$sqlDateFormat') as started_reading_display,
-            user_books.completed_reading,
-            to_char(user_books.completed_reading, '$sqlDateFormat') as completed_reading_display,
-            user_books.rating,
-            CASE WHEN user_books.rating IS NOT NULL THEN CONCAT(user_books.rating, '/', 5) ELSE null END as rating_display,
-            user_books.private_notes,
-            user_books.public_notes,
-            user_books.reading_medium,
-            user_books.book_id
-        ")
-        ->join('books', 'books.id', 'user_books.book_id')
-        ->join('book_types', 'book_types.id', 'books.book_type_id')
-        ->leftJoin('book_authors', 'book_authors.book_id', 'books.id')
-        ->leftJoin('authors', 'authors.id', 'book_authors.author_id')
-        ->leftJoin('book_series', 'book_series.book_id', 'books.id')
-        ->leftJoin('series', 'series.id', 'book_series.series_id')
-        ->where('user_books.status', $request->status)
-        ->where('user_books.user_id', Auth::id())
-        ->groupBy('user_books.id', 'series.id', 'books.id', 'book_series.id', 'book_types.id');
-
-        return Paginator::generate(
-            $query,
+        $result = Paginator::generate(
+            UserBook::selectRaw("
+                user_books.id,
+                books.name,
+                book_types.name as book_type,
+                books.cover_image_url,
+                CASE
+                    WHEN COUNT(book_series.series_id) > 0 THEN
+                        json_agg(
+                            json_build_object(
+                                'name', series.name,
+                                'index', book_series.index
+                            )
+                        ) FILTER (WHERE series.name IS NOT NULL)
+                    ELSE '[]'::json
+                END as series_info,
+                string_agg(
+                    concat(
+                        authors.name,
+                        CASE WHEN book_authors.role IS NOT NULL THEN CONCAT(' (', book_authors.role, ')') ELSE '' END
+                    ),
+                    ', '
+                    ORDER BY book_authors.id
+                ) as author,
+                user_books.status,
+                user_books.started_reading,
+                to_char(user_books.started_reading, '$sqlDateFormat') as started_reading_display,
+                user_books.completed_reading,
+                to_char(user_books.completed_reading, '$sqlDateFormat') as completed_reading_display,
+                user_books.rating,
+                CASE WHEN user_books.rating IS NOT NULL THEN CONCAT(user_books.rating, '/', 5) ELSE null END as rating_display,
+                user_books.private_notes,
+                user_books.public_notes,
+                user_books.reading_medium,
+                user_books.book_id
+            ")
+            ->join('books', 'books.id', 'user_books.book_id')
+            ->join('book_types', 'book_types.id', 'books.book_type_id')
+            ->leftJoin('book_authors', 'book_authors.book_id', 'books.id')
+            ->leftJoin('authors', 'authors.id', 'book_authors.author_id')
+            ->leftJoin('book_series', 'book_series.book_id', 'books.id')
+            ->leftJoin('series', 'series.id', 'book_series.series_id')
+            ->where('user_books.status', $request->status)
+            ->where('user_books.user_id', Auth::id())
+            ->groupBy('user_books.id', 'books.id', 'book_types.id'),
             [
                 'sortBy' => $request->status === 'READ' ? 'user_books.completed_reading' : 'user_books.updated_at',
                 'sortOrder' => 'DESC',
                 'filterColumns' => [
-                    DB::raw($bookColumn),
+                    'books.name',
                     'authors.name'
                 ],
                 'requestSortBySubtitutions' => [
@@ -66,6 +74,60 @@ class UserBooksController extends Controller
             ],
             $request
         );
+
+        $result['paginator']->transform(function($item) {
+            $item->series_info = $item->series_info ? json_decode($item->series_info, true) : [];
+
+            // Remove duplicates from series_info
+            if (!empty($item->series_info)) {
+                $unique_series = [];
+                $seen = [];
+
+                foreach ($item->series_info as $series) {
+                    $key = $series['name'] . '_' . $series['index'];
+                    if (!isset($seen[$key])) {
+                        $seen[$key] = true;
+                        $unique_series[] = $series;
+                    }
+                }
+
+                usort($unique_series, function($a, $b) {
+                    return $a['index'] <=> $b['index'];
+                });
+
+                $item->series_info = $unique_series;
+            }
+
+            // Remove duplicate authors while maintaining order
+            if (!empty($item->author)) {
+                $authors = explode(', ', $item->author);
+                $unique_authors = [];
+                $seen_authors = [];
+
+                foreach ($authors as $author) {
+                    if (!isset($seen_authors[$author])) {
+                        $seen_authors[$author] = true;
+                        $unique_authors[] = $author;
+                    }
+                }
+
+                $item->author = implode(', ', $unique_authors);
+            }
+
+            $item->series_display_name = Formatter::formatSeriesInfo($item->series_info);
+            $item->display_name = $item->name;
+
+            if (!empty($item->series_display_name)) {
+                $item->display_name .= ' (' . $item->series_display_name . ')';
+            }
+
+            // Update the book field to use the new display_name for backward compatibility
+            $item->book = $item->display_name;
+
+            return $item;
+        });
+
+        return $result;
     }
 
     public function update(Request $request, $id)
