@@ -38,6 +38,7 @@
                                         :options="selectAuthors"
                                         :required="true"
                                         @search-change="fetchAuthors"
+                                        style="width: 18rem;"
                                     />
                                 </td>
                                 <td>

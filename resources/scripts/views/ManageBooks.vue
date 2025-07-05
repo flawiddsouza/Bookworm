@@ -67,15 +67,19 @@
                         <tbody>
                             <tr v-for="(author, index) in authors">
                                 <td>
-                                    <Multiselect
-                                        v-model="author.author_id"
-                                        placeholder="Choose an author"
-                                        :filterResults="false"
-                                        :searchable="true"
-                                        :options="selectAuthors"
-                                        :required="true"
-                                        @search-change="fetchAuthors"
-                                    />
+                                    <div class="d-f">
+                                        <Multiselect
+                                            v-model="author.author_id"
+                                            placeholder="Choose an author"
+                                            :filterResults="false"
+                                            :searchable="true"
+                                            :options="selectAuthors"
+                                            :required="true"
+                                            @search-change="fetchAuthors"
+                                            style="width: 18rem;"
+                                        />
+                                        <button type="button" @click="showAddAuthorModal = true; currentAuthorIndex = index" class="ml-0_5em" title="Add new author" style="min-width: 30px;">+</button>
+                                    </div>
                                 </td>
                                 <td>
                                     <input type="text" class="w-100p b-0 o-0" v-model="author.role">
@@ -90,6 +94,22 @@
                 </div>
                 <div class="mt-1em"></div>
                 <button class="mt-1em">Save</button>
+            </form>
+        </Modal>
+
+        <!-- Quick Add Author Modal -->
+        <Modal v-model:showModal="showAddAuthorModal">
+            <template #title>Add Author</template>
+            <form @submit.prevent="addNewAuthor">
+                <div>
+                    <label>Author Name<br>
+                        <input type="text" required v-model="newAuthor.name" v-focus class="w-100p">
+                    </label>
+                </div>
+                <div class="mt-1em">
+                    <button type="submit">Add Author</button>
+                    <button type="button" @click="showAddAuthorModal = false" class="ml-0_5em">Cancel</button>
+                </div>
             </form>
         </Modal>
     </ManageContainer>
@@ -132,7 +152,10 @@ export default {
             authors: [{}],
             selectAuthors: [],
             bookTypes: [],
-            selectSeries: []
+            selectSeries: [],
+            showAddAuthorModal: false,
+            newAuthor: {},
+            currentAuthorIndex: null
         }
     },
     computed: {
@@ -151,6 +174,16 @@ export default {
                     this.book = {}
                     this.authors = [{}]
                 }
+                // Reset the add author modal state when the main modal is closed
+                this.showAddAuthorModal = false
+                this.newAuthor = {}
+                this.currentAuthorIndex = null
+            }
+        },
+        showAddAuthorModal() {
+            if(!this.showAddAuthorModal) {
+                this.newAuthor = {}
+                this.currentAuthorIndex = null
             }
         }
     },
@@ -254,6 +287,34 @@ export default {
         fetchBookTypes() {
             axios.get('/json/book-types').then(response => {
                 this.bookTypes = response.data
+            })
+        },
+        addNewAuthor() {
+            let loader = this.$loading.show()
+            axios.post('/json/manage-authors', this.newAuthor).then(response => {
+                // Check if response.data exists and has the expected structure
+                const newAuthorData = response.data
+                if (!newAuthorData || !newAuthorData.id || !newAuthorData.name) {
+                    throw new Error('Invalid response format')
+                }
+
+                // Add to the select options
+                this.selectAuthors.push({
+                    value: newAuthorData.id,
+                    label: newAuthorData.name
+                })
+
+                // Auto-select the new author for the current author field
+                if (this.currentAuthorIndex !== null) {
+                    this.authors[this.currentAuthorIndex].author_id = newAuthorData.id
+                }
+
+                this.showAddAuthorModal = false
+                loader.hide()
+                this.$snotify.success('Author Added')
+            }).catch(response => {
+                loader.hide()
+                this.$snotify.error(response.data || 'Failed to add author')
             })
         }
     },
