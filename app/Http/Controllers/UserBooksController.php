@@ -61,8 +61,21 @@ class UserBooksController extends Controller
             ->where('user_books.user_id', Auth::id())
             ->groupBy('user_books.id', 'books.id', 'book_types.id'),
             [
-                'sortBy' => $request->status === 'READ' ? 'user_books.completed_reading' : 'user_books.updated_at',
-                'sortOrder' => 'DESC',
+                'sortBy' => $request->status === 'READ' ? [
+                    [
+                        'column' => 'user_books.completed_reading',
+                        'direction' => 'desc'
+                    ],
+                    [
+                        'column' => 'user_books.updated_at',
+                        'direction' => 'desc'
+                    ]
+                ] : [
+                    [
+                        'column' => 'user_books.updated_at',
+                        'direction' => 'desc'
+                    ]
+                ],
                 'filterColumns' => [
                     'books.name',
                     'authors.name'
