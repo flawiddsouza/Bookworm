@@ -136,12 +136,14 @@ class ManageBooksController extends Controller
                 ]);
             }
 
-            if(isset($request->series_id)) {
-                BookSeries::create([
-                    'index' => $request->series_index ?? null,
-                    'book_id' => $bookId,
-                    'series_id' => $request->series_id
-                ]);
+            if(isset($request->series) && count($request->series) > 0) {
+                foreach($request->series as $series) {
+                    BookSeries::create([
+                        'index' => $series['index'] ?? null,
+                        'book_id' => $bookId,
+                        'series_id' => $series['series_id']
+                    ]);
+                }
             }
 
             DB::commit();
@@ -150,6 +152,10 @@ class ManageBooksController extends Controller
 
             if($this->stringContains($e->getMessage(), 'duplicate key value violates unique constraint "book_id_author_id_unique"')) {
                 return response('Duplicate author in book', 400);
+            }
+
+            if($this->stringContains($e->getMessage(), 'duplicate key value violates unique constraint "book_id_series_id_unique"')) {
+                return response('Duplicate series entry: same book cannot be added to the same series with the same index', 400);
             }
 
             return response($e->getMessage(), 500);
@@ -179,15 +185,15 @@ class ManageBooksController extends Controller
                 }
             }
 
-            if(isset($request->series_id)) {
-                BookSeries::updateOrCreate([
-                    'book_id' => $id
-                ], [
-                    'index' => $request->series_index ?? null,
-                    'series_id' => $request->series_id
-                ]);
-            } else {
-                BookSeries::where('book_id', $id)->delete();
+            BookSeries::where('book_id', $id)->delete();
+            if(isset($request->series) && count($request->series) > 0) {
+                foreach($request->series as $series) {
+                    BookSeries::create([
+                        'index' => $series['index'] ?? null,
+                        'book_id' => $id,
+                        'series_id' => $series['series_id']
+                    ]);
+                }
             }
 
             DB::commit();
@@ -196,6 +202,10 @@ class ManageBooksController extends Controller
 
             if($this->stringContains($e->getMessage(), 'duplicate key value violates unique constraint "book_id_author_id_unique"')) {
                 return response('Duplicate author in book', 400);
+            }
+
+            if($this->stringContains($e->getMessage(), 'duplicate key value violates unique constraint "book_id_series_id_unique"')) {
+                return response('Duplicate series entry: same book cannot be added to the same series with the same index', 400);
             }
 
             return response($e->getMessage(), 500);
@@ -225,5 +235,22 @@ class ManageBooksController extends Controller
         ->join('authors', 'authors.id', 'book_authors.author_id')
         ->select('book_authors.id', 'book_authors.author_id', 'authors.name', 'book_authors.role')
         ->get();
+    }
+
+    public function getSeries($id)
+    {
+        return BookSeries::where('book_id', $id)
+        ->join('series', 'series.id', 'book_series.series_id')
+        ->select('book_series.id', 'book_series.series_id', 'series.name', 'book_series.index')
+        ->orderBy('book_series.index')
+        ->get();
+    }
+
+    public function getAuthorsAndSeries($id)
+    {
+        return [
+            'authors' => $this->getAuthors($id),
+            'series' => $this->getSeries($id)
+        ];
     }
 }

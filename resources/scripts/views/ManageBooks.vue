@@ -52,24 +52,32 @@
                             <tr>
                                 <th style="width: 3.5rem">Index</th>
                                 <th>Series</th>
+                                <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            <td>
-                                <input type="number" step="0.1" class="w-100p b-0 o-0" v-model="book.series_index" :required="book.series_id ? true : false">
-                            </td>
-                            <td>
-                                <Multiselect
-                                    v-model="book.series_id"
-                                    placeholder="Choose a series"
-                                    :filterResults="false"
-                                    :searchable="true"
-                                    :options="selectSeries"
-                                    @search-change="fetchSeries"
-                                />
-                            </td>
+                            <tr v-for="(series, index) in seriesList">
+                                <td>
+                                    <input type="number" step="0.1" class="w-100p b-0 o-0" v-model="series.index" required>
+                                </td>
+                                <td>
+                                    <Multiselect
+                                        v-model="series.series_id"
+                                        placeholder="Choose a series"
+                                        :filterResults="false"
+                                        :searchable="true"
+                                        :options="selectSeries"
+                                        :required="true"
+                                        @search-change="fetchSeries"
+                                    />
+                                </td>
+                                <td class="w-1px">
+                                    <button type="button" @click="seriesList.splice(index, 1)">X</button>
+                                </td>
+                            </tr>
                         </tbody>
                     </table>
+                    <button type="button" @click="seriesList.push({})" class="mt-1em">Add Series +</button>
                 </div>
                 <div class="mt-1em">
                     <table class="table">
@@ -175,6 +183,7 @@ export default {
             showModal: false,
             book: {},
             authors: [{}],
+            seriesList: [],
             selectAuthors: [],
             bookTypes: [],
             selectSeries: [],
@@ -198,6 +207,7 @@ export default {
                 if('id' in this.book) {
                     this.book = {}
                     this.authors = [{}]
+                    this.seriesList = []
                 }
                 // Reset the add author modal state when the main modal is closed
                 this.showAddAuthorModal = false
@@ -223,8 +233,7 @@ export default {
                 name: this.book.name,
                 book_type_id: this.book.book_type_id,
                 cover_image_url: this.book.cover_image_url,
-                series_id: this.book.series_id,
-                series_index: this.book.series_index,
+                series: this.seriesList,
                 authors: this.authors
             }
 
@@ -243,6 +252,7 @@ export default {
                     this.bus.emit('refreshDataTable')
                     this.book = {}
                     this.authors = [{}]
+                    this.seriesList = []
                     loader.hide()
                     this.$snotify.success('Book Added')
                 }).catch(response => {
@@ -257,22 +267,21 @@ export default {
         startEdit(item) {
             this.book = JSON.parse(JSON.stringify(item))
             let loader = this.$loading.show()
-            axios.get(`/json/manage-books/${item.id}/authors`).then(response => {
-                this.authors = response.data
+            axios.get(`/json/manage-books/${item.id}/authors-and-series`).then(response => {
+                this.authors = response.data.authors
+                this.seriesList = response.data.series
                 this.selectAuthors = this.authors.map(author => {
                     return {
                         value: author.author_id,
                         label: author.name
                     }
                 })
-                if(item.series_id !== null) {
-                    this.selectSeries = [
-                        {
-                            value: item.series_id,
-                            label: item.series_name
-                        }
-                    ]
-                }
+                this.selectSeries = this.seriesList.map(series => {
+                    return {
+                        value: series.series_id,
+                        label: series.name
+                    }
+                })
                 loader.hide()
                 this.showModal = true
             })

@@ -16,7 +16,7 @@ Route::get('/', function () {
 
 Route::group([ 'prefix' => '/json', 'middleware' => 'auth'], function() {
     Route::resource('/manage-books', ManageBooksController::class);
-    Route::get('/manage-books/{id}/authors', [ManageBooksController::class, 'getAuthors']);
+    Route::get('/manage-books/{id}/authors-and-series', [ManageBooksController::class, 'getAuthorsAndSeries']);
 
     Route::resource('/manage-series', ManageSeriesController::class);
     Route::get('/manage-series/{id}/authors-and-books', [ManageSeriesController::class, 'getAuthorsAndBooks']);
