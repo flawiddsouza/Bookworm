@@ -141,11 +141,23 @@ class ImportController extends Controller
                         }
                     }
 
+                    // Combine private notes and review into single notes field
+                    $notes = '';
+                    $privateNotes = $bookToAdd['Private Notes'] ?? '';
+                    $publicNotes = $bookToAdd['My Review'] ?? '';
+
+                    if (!empty($privateNotes) && !empty($publicNotes)) {
+                        $notes = "Private Notes:\n{$privateNotes}\n\nPublic Notes:\n{$publicNotes}";
+                    } elseif (!empty($privateNotes)) {
+                        $notes = $privateNotes;
+                    } elseif (!empty($publicNotes)) {
+                        $notes = $publicNotes;
+                    }
+
                     UserBook::create([
                         'user_id' => $userId,
                         'book_id' => $book->id,
-                        'private_notes' => $bookToAdd['Private Notes'],
-                        'public_notes' => $bookToAdd['My Review'],
+                        'notes' => $notes,
                         'rating' => $bookToAdd['My Rating'],
                         'status' => $status,
                         'started_reading' => null,

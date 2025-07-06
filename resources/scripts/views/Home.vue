@@ -59,16 +59,9 @@
                     </label>
                 </div>
                 <div class="mt-1em">
-                    <label>Private Notes<br>
+                    <label>Notes<br>
                         <resizable-textarea>
-                            <textarea v-model="book.private_notes" class="w-100p"></textarea>
-                        </resizable-textarea>
-                    </label>
-                </div>
-                <div class="mt-1em">
-                    <label>Public Notes<br>
-                        <resizable-textarea>
-                            <textarea v-model="book.public_notes" class="w-100p"></textarea>
+                            <textarea v-model="book.notes" class="w-100p"></textarea>
                         </resizable-textarea>
                     </label>
                 </div>
@@ -128,7 +121,7 @@ export default {
             ],
             viewMode: 'table',
             bus: mitt(),
-            fieldHtml: ['private_notes', 'public_notes'],
+            fieldHtml: ['notes'],
             showModal: false,
             book: {},
             ratings
@@ -184,14 +177,8 @@ export default {
 
             // fields.push(...[
             //     {
-            //         fieldName: 'Private Notes',
-            //         field: 'private_notes',
-            //         width: '30em',
-            //         whiteSpace: 'pre-line'
-            //     },
-            //     {
-            //         fieldName: 'Public Notes',
-            //         field: 'public_notes',
+            //         fieldName: 'Notes',
+            //         field: 'notes',
             //         width: '30em',
             //         whiteSpace: 'pre-line'
             //     }

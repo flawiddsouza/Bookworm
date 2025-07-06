@@ -29,16 +29,9 @@
             </label>
         </div>
         <div class="mt-1em">
-            <label>Private Notes<br>
+            <label>Notes<br>
                 <resizable-textarea>
-                    <textarea v-model="book.private_notes" class="w-100p"></textarea>
-                </resizable-textarea>
-            </label>
-        </div>
-        <div class="mt-1em">
-            <label>Public Notes<br>
-                <resizable-textarea>
-                    <textarea v-model="book.public_notes" class="w-100p"></textarea>
+                    <textarea v-model="book.notes" class="w-100p"></textarea>
                 </resizable-textarea>
             </label>
         </div>

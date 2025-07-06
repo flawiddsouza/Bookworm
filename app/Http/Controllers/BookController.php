@@ -45,8 +45,7 @@ class BookController extends Controller
             to_char(user_books.completed_reading, '$sqlDateFormat') as completed_reading_display,
             user_books.rating,
             CASE WHEN user_books.rating IS NOT NULL THEN CONCAT(user_books.rating, '/', 5) ELSE null END as rating_display,
-            user_books.private_notes,
-            user_books.public_notes,
+            user_books.notes,
             user_books.reading_medium
         ")
         ->leftJoin('user_books', function($join) {
@@ -125,8 +124,7 @@ class BookController extends Controller
             ],
             [
                 'reading_medium' => $request->reading_medium,
-                'private_notes' => $request->private_notes,
-                'public_notes' => $request->public_notes,
+                'notes' => $request->notes,
                 'rating' => $request->rating,
                 'status' => $request->status,
                 'started_reading' => $request->started_reading,
