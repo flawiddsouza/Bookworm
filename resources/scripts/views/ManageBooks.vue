@@ -14,6 +14,9 @@
                 <button @click="viewBook(item.id)">View</button>
                 <button class="ml-0_5em" @click="startEdit(item)">Edit</button>
                 <button class="ml-0_5em" @click="deleteItem(item)">Delete</button>
+                <button class="ml-0_5em" @click="cloneBook(item)" style="display: inline-flex; vertical-align: bottom;">
+                    <CopyIcon />
+                </button>
             </template>
         </DataTable>
         <GridView v-else route="/json/manage-books" :bus="bus">
@@ -24,6 +27,9 @@
                 <button @click="viewBook(item.id)">View</button>
                 <button class="ml-0_5em" @click="startEdit(item)">Edit</button>
                 <button class="ml-0_5em" @click="deleteItem(item)">Delete</button>
+                <button class="ml-0_5em" @click="cloneBook(item)" style="display: inline-flex; vertical-align: bottom;">
+                    <CopyIcon />
+                </button>
             </template>
         </GridView>
         <Modal v-model:showModal="showModal">
@@ -146,6 +152,7 @@ import GridView from '@/scripts/components/GridView.vue'
 import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
 import Tabs from '@/scripts/components/Tabs.vue'
+import CopyIcon from '@/scripts/components/CopyIcon.vue'
 import Multiselect from '@vueform/multiselect'
 import '@vueform/multiselect/themes/default.css'
 
@@ -156,6 +163,7 @@ export default {
         GridView,
         Modal,
         Tabs,
+        CopyIcon,
         Multiselect
     },
     data() {
@@ -352,6 +360,36 @@ export default {
             }).catch(response => {
                 loader.hide()
                 this.$snotify.error(response.data || 'Failed to add author')
+            })
+        },
+        cloneBook(item) {
+            const clonedBook = JSON.parse(JSON.stringify(item))
+            delete clonedBook.id
+
+            this.book = clonedBook
+
+            let loader = this.$loading.show()
+            axios.get(`/json/manage-books/${item.id}/authors-and-series`).then(response => {
+                this.authors = response.data.authors.map(author => ({ ...author, id: undefined }))
+                this.seriesList = response.data.series.map(series => ({ ...series, id: undefined }))
+
+                this.selectAuthors = this.authors.map(author => {
+                    return {
+                        value: author.author_id,
+                        label: author.name
+                    }
+                })
+                this.selectSeries = this.seriesList.map(series => {
+                    return {
+                        value: series.series_id,
+                        label: series.name
+                    }
+                })
+                loader.hide()
+                this.showModal = true
+            }).catch(() => {
+                loader.hide()
+                this.$snotify.error('Failed to clone book')
             })
         }
     },
