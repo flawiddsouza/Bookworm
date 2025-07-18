@@ -98,4 +98,23 @@ export default {
 .search-box > input {
     width: 30em;
 }
+
+/* Mobile responsive styles */
+@media (max-width: 768px) {
+    .search-box > input {
+        width: 100%;
+        max-width: 100%;
+        min-width: 200px;
+    }
+
+    .search-box > div {
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .search-box > input {
+        min-width: 150px;
+    }
+}
 </style>

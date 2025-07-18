@@ -1,6 +1,6 @@
 <template>
     <div>
-        <nav class="d-f flex-jc-sb flex-ai-c p-1em bb">
+        <nav class="d-f flex-jc-sb flex-ai-c p-1em bb navbar-responsive">
             <div class="d-f flex-ai-c">
                 <div class="d-f flex-ai-c">
                     <!-- From: https://www.flaticon.com/free-icon/book_1231138
@@ -12,10 +12,20 @@
                     </svg>
                     <router-link to="/" style="color: black; font-size: 1.1em" class="td-n">Bookworm</router-link>
                 </div>
-                <router-link to="/" class="ml-1em" active-class="td-n">Home</router-link>
-                <router-link to="/manage/books" class="ml-1em" active-class="td-n">Manage Books</router-link>
-                <router-link to="/import" class="ml-1em" active-class="td-n">Import</router-link>
-                <div class="ml-1em">
+
+                <button class="navbar-toggle" @click="toggleNavbar" :class="{ 'navbar-toggle-active': showNavbar }">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+
+                <div class="navbar-menu" :class="{ 'navbar-menu-active': showNavbar }">
+                    <router-link to="/" class="ml-1em" active-class="td-n">Home</router-link>
+                    <router-link to="/manage/books" class="ml-1em" active-class="td-n">Manage Books</router-link>
+                    <router-link to="/import" class="ml-1em" active-class="td-n">Import</router-link>
+                </div>
+
+                <div class="ml-1em navbar-search">
                     <SearchBox placeholder="Find books..." url="/json/search/books">
                         <template #default="{ result }">
                             <div @click="loadBook(result.id)">{{ result.name }} by {{ result.author }}</div>
@@ -23,7 +33,7 @@
                     </SearchBox>
                 </div>
             </div>
-            <div class="ml-1em">
+            <div class="ml-1em navbar-logout">
                 <form action="/logout" method="POST" ref="logoutForm">
                     <input type="hidden" name="_token" :value="csrfToken">
                 </form>
@@ -53,7 +63,8 @@ export default {
     data() {
         return {
             selectedBookId: null,
-            showModal: false
+            showModal: false,
+            showNavbar: false
         }
     },
     computed: {
@@ -65,7 +76,127 @@ export default {
         loadBook(bookId) {
             this.selectedBookId = bookId
             this.showModal = true
+        },
+        toggleNavbar() {
+            this.showNavbar = !this.showNavbar
         }
     }
 }
 </script>
+
+<style scoped>
+/* Mobile hamburger menu - only visible on mobile */
+.navbar-toggle {
+    display: none;
+    flex-direction: column;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0.5em;
+    gap: 3px;
+}
+
+.navbar-toggle span {
+    display: block;
+    width: 25px;
+    height: 3px;
+    background-color: #333;
+    transition: 0.3s;
+}
+
+.navbar-toggle-active span:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.navbar-toggle-active span:nth-child(2) {
+    opacity: 0;
+}
+
+.navbar-toggle-active span:nth-child(3) {
+    transform: rotate(-45deg) translate(7px, -6px);
+}
+
+/* Mobile responsive behavior */
+@media (max-width: 768px) {
+    .navbar-responsive {
+        flex-wrap: wrap;
+        position: relative;
+    }
+
+    .navbar-responsive > div:first-child {
+        flex-direction: column;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .navbar-toggle {
+        display: flex;
+        margin-left: 1em;
+        align-self: flex-end;
+        margin-top: -2em;
+    }
+
+    .navbar-menu {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: flex-start !important;
+        margin-top: 1em;
+        margin-left: 0 !important;
+        padding-top: 1em;
+        border-top: 1px solid #eee;
+        gap: 0.75em;
+    }
+
+    .navbar-menu-active {
+        display: flex;
+    }
+
+    .navbar-search {
+        display: none;
+        width: 100%;
+        margin-left: 0 !important;
+        margin-top: 1em;
+        padding-top: 1em;
+        border-top: 1px solid #eee;
+    }
+
+    .navbar-menu-active ~ .navbar-search {
+        display: block;
+    }
+
+    .navbar-logout {
+        display: none;
+    }
+
+    .navbar-menu-active ~ .navbar-logout {
+        display: block;
+        margin-left: 0 !important;
+        width: 100%;
+        margin-top: 1em;
+        padding-top: 1em;
+        border-top: 1px solid #eee;
+    }
+}/* Tablet adjustments */
+@media (max-width: 1024px) and (min-width: 769px) {
+    .navbar-responsive {
+        padding: 0.75em;
+    }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 480px) {
+    .navbar-responsive {
+        padding: 0.5em;
+    }
+
+    .navbar-responsive svg {
+        width: 30px;
+        height: 20px;
+    }
+
+    .navbar-responsive a[style*="font-size: 1.1em"] {
+        font-size: 1em !important;
+    }
+}
+</style>
