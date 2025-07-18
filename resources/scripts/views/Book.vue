@@ -1,49 +1,58 @@
 <template>
-    <form @submit.prevent="saveBook" v-if="loaded">
-        <h3>{{ book.book }} by {{ book.author}}</h3>
-        <div class="mt-1em">
-            <label>Status<br>
-                <select v-model="book.status" class="w-100p" required>
-                    <option value="TO_READ">To Read</option>
-                    <option value="CURRENTLY_READING">Currently Reading</option>
-                    <option value="READ">Read</option>
-                    <option value="ABANDONED">Abandoned</option>
-                </select>
-            </label>
+    <div class="book-form-container" v-if="loaded">
+        <div class="book-header">
+            <h1 class="book-title">{{ book.book }}</h1>
+            <p class="book-author">by {{ book.author }}</p>
         </div>
-        <div class="mt-1em">
-            <label>Started Reading<br>
-                <input type="date" v-model="book.started_reading" class="w-100p">
-            </label>
-        </div>
-        <div class="mt-1em">
-            <label>Completed Reading<br>
-                <input type="date" v-model="book.completed_reading" class="w-100p">
-            </label>
-        </div>
-        <div class="mt-1em">
-            <label>Rating<br>
-                <select v-model="book.rating" class="w-100p">
-                    <option :value="null"></option>
-                    <option v-for="rating in ratings" :value="rating.rating">{{ rating.description }}</option>
-                </select>
-            </label>
-        </div>
-        <div class="mt-1em">
-            <label>Notes<br>
-                <resizable-textarea>
-                    <textarea v-model="book.notes" class="w-100p"></textarea>
-                </resizable-textarea>
-            </label>
-        </div>
-        <div class="mt-1em">
-            <label>Reading Medium<br>
-                <input type="text" v-model="book.reading_medium" class="w-100p">
-            </label>
-        </div>
-        <div class="mt-1em"></div>
-        <button class="mt-1em">Save</button>
-    </form>
+
+        <form class="book-form">
+            <div class="form-content">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label class="form-label">Status</label>
+                        <select v-model="book.status" class="form-select" required>
+                            <option value="TO_READ">To Read</option>
+                            <option value="CURRENTLY_READING">Currently Reading</option>
+                            <option value="READ">Read</option>
+                            <option value="ABANDONED">Abandoned</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Rating</label>
+                        <select v-model="book.rating" class="form-select">
+                            <option :value="null">No rating</option>
+                            <option v-for="rating in ratings" :value="rating.rating">{{ rating.description }}</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Started Reading</label>
+                        <input type="date" v-model="book.started_reading" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Completed Reading</label>
+                        <input type="date" v-model="book.completed_reading" class="form-input">
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Reading Medium</label>
+                        <input type="text" v-model="book.reading_medium" class="form-input" placeholder="e.g., Hardcover, Kindle, Audiobook">
+                    </div>
+                </div>
+
+                <div class="notes-section">
+                    <div class="form-group">
+                        <label class="form-label">Notes</label>
+                        <resizable-textarea>
+                            <textarea v-model="book.notes" class="form-textarea" placeholder="Your thoughts about this book..." spellcheck="false"></textarea>
+                        </resizable-textarea>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
 </template>
 
 <script>
@@ -81,16 +90,6 @@ export default {
                 loader.hide()
             })
         },
-        saveBook() {
-            let loader = this.$loading.show()
-            axios.post(`/json/books/${this.book.id}`, this.book).then(() => {
-                loader.hide()
-                this.$snotify.success('Book Saved')
-            }).catch(response => {
-                loader.hide()
-                this.$snotify.error(response.data)
-            })
-        },
         autosaveBook() {
             axios.post(`/json/books/${this.book.id}`, this.book).then(() => {
                 this.$snotify.success('Book Autosaved')
@@ -119,3 +118,153 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+.book-form-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    background: #ffffff;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.book-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.book-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0 0 0.5rem 0;
+    line-height: 1.2;
+}
+
+.book-author {
+    font-size: 1.1rem;
+    color: #6b7280;
+    margin: 0;
+    font-weight: 400;
+}
+
+.book-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.form-content {
+    display: flex;
+    gap: 3rem;
+    align-items: flex-start;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    flex: 1;
+}
+
+.notes-section {
+    flex: 3;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-group-full {
+    grid-column: 1 / -1;
+}
+
+.form-label {
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.form-input,
+.form-select {
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    font-size: 1rem;
+    background: #ffffff;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus,
+.form-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 1rem;
+    background: #ffffff;
+    min-height: 250px;
+    resize: vertical;
+    font-family: inherit;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    line-height: 1.6;
+}
+
+.form-textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.form-textarea::placeholder {
+    color: #9ca3af;
+}
+
+.form-input::placeholder {
+    color: #9ca3af;
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+    .form-content {
+        flex-direction: column;
+    }
+
+    .form-grid,
+    .notes-section {
+        flex: none;
+        width: 100%;
+    }
+
+    .form-textarea {
+        min-height: 120px;
+    }
+}
+
+@media (max-width: 768px) {
+    .book-form-container {
+        padding: 1rem;
+        margin: 0 1rem;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .book-title {
+        font-size: 1.5rem;
+    }
+}
+</style>
