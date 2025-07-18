@@ -56,7 +56,14 @@ class UserBooksController extends Controller
             ->leftJoin('authors', 'authors.id', 'book_authors.author_id')
             ->leftJoin('book_series', 'book_series.book_id', 'books.id')
             ->leftJoin('series', 'series.id', 'book_series.series_id')
-            ->where('user_books.status', $request->status)
+            ->where(function($query) use ($request) {
+                if (str_contains($request->status, ',')) {
+                    $statuses = explode(',', $request->status);
+                    $query->whereIn('user_books.status', $statuses);
+                } else {
+                    $query->where('user_books.status', $request->status);
+                }
+            })
             ->where('user_books.user_id', Auth::id())
             ->groupBy('user_books.id', 'books.id', 'book_types.id'),
             [

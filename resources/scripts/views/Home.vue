@@ -98,6 +98,10 @@ export default {
         return {
             tabs: [
                 {
+                    name: 'Currently Reading + Read',
+                    filter: 'CURRENTLY_READING,READ'
+                },
+                {
                     name: 'Currently Reading',
                     filter: 'CURRENTLY_READING'
                 },
@@ -114,7 +118,7 @@ export default {
                     filter: 'ABANDONED'
                 }
             ],
-            activeTab: 'CURRENTLY_READING',
+            activeTab: 'CURRENTLY_READING,READ',
             viewModeOptions: [
                 { value: 'table', label: 'Table' },
                 { value: 'grid', label: 'Grid' }
@@ -144,7 +148,7 @@ export default {
                 }
             ]
 
-            if(this.activeTab === 'READ') {
+            if(this.activeTab === 'READ' || this.activeTab === 'CURRENTLY_READING,READ') {
                 fields.push(...[
                     {
                         fieldName: 'Started Reading',
@@ -174,15 +178,6 @@ export default {
                     field: 'reading_medium'
                 })
             }
-
-            // fields.push(...[
-            //     {
-            //         fieldName: 'Notes',
-            //         field: 'notes',
-            //         width: '30em',
-            //         whiteSpace: 'pre-line'
-            //     }
-            // ])
 
             return fields
         }
