@@ -1,7 +1,7 @@
 <template>
     <div class="search-box">
         <input type="search" v-model="search" :placeholder="placeholder" onkeyup="this.setAttribute('value', this.value)" onsearch="this.setAttribute('value', this.value)">
-        <div>
+        <div v-if="search.length > 0">
             <div v-if="status">{{ status }}</div>
             <div v-for="result in results" class="search-result" :key="result.id">
                 <slot :result="result">
