@@ -24,6 +24,7 @@
         <div class="mt-1em">
             <label>Rating<br>
                 <select v-model="book.rating" class="w-100p">
+                    <option :value="null"></option>
                     <option v-for="rating in ratings" :value="rating.rating">{{ rating.description }}</option>
                 </select>
             </label>
@@ -49,6 +50,14 @@
 import ResizableTextarea from '@/scripts/components/ResizableTextarea.vue'
 import { ratings } from '@/scripts/sharedData.js'
 
+function debounce(fn, delay) {
+    let timeoutID;
+    return function(...args) {
+        clearTimeout(timeoutID);
+        timeoutID = setTimeout(() => fn.apply(this, args), delay);
+    };
+}
+
 export default {
     components: {
         ResizableTextarea
@@ -60,7 +69,8 @@ export default {
         return {
             loaded: false,
             book: {},
-            ratings
+            ratings,
+            autosaveDebounced: null
         }
     },
     methods: {
@@ -68,14 +78,6 @@ export default {
             let loader = this.$loading.show()
             axios.get(`/json/books/${this.bookId}`).then(response => {
                 this.book = response.data
-                this.loaded = true
-                // trigger input events for textareas, as this.book = doesn't seem to trigger the event on any of the textareas
-                // the input event helps trigger resize on resizable textareas
-                this.$nextTick(() => {
-                    Array.from(document.querySelectorAll('textarea')).forEach(textarea => {
-                        textarea.dispatchEvent(new Event('input'))
-                    })
-                })
                 loader.hide()
             })
         },
@@ -88,6 +90,28 @@ export default {
                 loader.hide()
                 this.$snotify.error(response.data)
             })
+        },
+        autosaveBook() {
+            axios.post(`/json/books/${this.book.id}`, this.book).then(() => {
+                this.$snotify.success('Book Autosaved')
+            }).catch(response => {
+                this.$snotify.error(response.data)
+            })
+        }
+    },
+    watch: {
+        book: {
+            handler() {
+                if (!this.loaded) {
+                    this.loaded = true
+                    return
+                }
+                if (!this.autosaveDebounced) {
+                    this.autosaveDebounced = debounce(this.autosaveBook, 500)
+                }
+                this.autosaveDebounced()
+            },
+            deep: true
         }
     },
     created() {
