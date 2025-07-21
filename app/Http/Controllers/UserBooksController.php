@@ -105,6 +105,14 @@ class UserBooksController extends Controller
                     $query->where('user_books.status', $request->status);
                 }
             })
+            ->when($request->book_type, function($query) use ($request) {
+                if (str_contains($request->book_type, ',')) {
+                    $bookTypeIds = explode(',', $request->book_type);
+                    $query->whereIn('books.book_type_id', $bookTypeIds);
+                } else {
+                    $query->where('books.book_type_id', $request->book_type);
+                }
+            })
             ->where('user_books.user_id', Auth::id())
             ->groupBy('user_books.id', 'books.id', 'book_types.id'),
             [

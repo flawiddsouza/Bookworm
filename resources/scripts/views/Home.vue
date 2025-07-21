@@ -1,26 +1,35 @@
 <template>
     <div>
         <div class="d-f flex-jc-sb flex-ai-c mb-1em">
-            <Tabs
-                :tabs="tabs"
-                v-model="activeTab"
-                value-key="filter"
-                label-key="name"
-            />
+            <div>
+                <Tabs
+                    :tabs="tabs"
+                    v-model="activeTab"
+                    value-key="filter"
+                    label-key="name"
+                />
+                <Tabs
+                    :tabs="bookTypeFilters"
+                    v-model="activeBookTypeFilter"
+                    value-key="filter"
+                    label-key="name"
+                    class="ml-1em"
+                />
+            </div>
             <Tabs
                 :tabs="viewModeOptions"
                 v-model="viewMode"
             />
         </div>
         <div>
-            <DataTable v-if="viewMode === 'table'" :fields="fields" :field-html="fieldHtml" :route="`/json/user/books?status=${activeTab}`" item-actions-width="15em" :bus="bus">
+            <DataTable v-if="viewMode === 'table'" :fields="fields" :field-html="fieldHtml" :route="routeUrl" item-actions-width="15em" :bus="bus">
                 <template #item-actions="{ item }">
                     <button @click="viewBook(item.book_id)">View</button>
                     <button class="ml-0_5em" @click="startEdit(item)">Edit</button>
                     <button class="ml-0_5em" @click="deleteItem(item)">Delete</button>
                 </template>
             </DataTable>
-            <GridView v-else :route="`/json/user/books?status=${activeTab}`" :bus="bus">
+            <GridView v-else :route="routeUrl" :bus="bus">
                 <template #item-actions="{ item }">
                     <button @click="viewBook(item.book_id)">View</button>
                     <button class="ml-0_5em" @click="startEdit(item)">Edit</button>
@@ -119,6 +128,8 @@ export default {
                 }
             ],
             activeTab: 'CURRENTLY_READING,READ',
+            bookTypeFilters: [],
+            activeBookTypeFilter: 'ALL',
             viewModeOptions: [
                 { value: 'table', label: 'Table' },
                 { value: 'grid', label: 'Grid' }
@@ -132,6 +143,13 @@ export default {
         }
     },
     computed: {
+        routeUrl() {
+            let url = `/json/user/books?status=${this.activeTab}`
+            if (this.activeBookTypeFilter !== 'ALL') {
+                url += `&book_type=${this.activeBookTypeFilter}`
+            }
+            return url
+        },
         fields() {
             let fields = [
                 {
@@ -186,6 +204,9 @@ export default {
         activeTab() {
             localStorage.setItem('Bookworm-Home-ActiveTab', this.activeTab)
         },
+        activeBookTypeFilter() {
+            localStorage.setItem('Bookworm-Home-ActiveBookTypeFilter', this.activeBookTypeFilter)
+        },
         viewMode() {
             localStorage.setItem('Bookworm-Home-ViewMode', this.viewMode)
         }
@@ -224,18 +245,38 @@ export default {
                 loader.hide()
                 this.$snotify.error(response.data)
             })
+        },
+        fetchBookTypes() {
+            axios.get('/json/book-types').then(response => {
+                this.bookTypeFilters = [
+                    { name: 'All', filter: 'ALL' },
+                    ...response.data.map(bookType => ({
+                        name: bookType.name,
+                        filter: bookType.id.toString()
+                    }))
+                ]
+            }).catch(error => {
+                console.error('Failed to fetch book types:', error)
+                this.bookTypeFilters = [{ name: 'All', filter: 'ALL' }]
+            })
         }
     },
     created() {
         let activeTab = localStorage.getItem('Bookworm-Home-ActiveTab')
+        let activeBookTypeFilter = localStorage.getItem('Bookworm-Home-ActiveBookTypeFilter')
         let viewMode = localStorage.getItem('Bookworm-Home-ViewMode')
 
         if(activeTab) {
             this.activeTab = activeTab
         }
+        if(activeBookTypeFilter) {
+            this.activeBookTypeFilter = activeBookTypeFilter
+        }
         if(viewMode) {
             this.viewMode = viewMode
         }
+
+        this.fetchBookTypes()
     }
 }
 </script>
