@@ -246,6 +246,23 @@ class ManageBooksController extends Controller
         ->get();
     }
 
+    public function updateBookType(Request $request, $id)
+    {
+        try {
+            $request->validate([
+                'book_type_id' => 'required|exists:book_types,id'
+            ]);
+
+            Book::where('id', $id)->update([
+                'book_type_id' => $request->book_type_id
+            ]);
+
+            return response()->json(['message' => 'Book type updated successfully']);
+        } catch(\Throwable $e) {
+            return response($e->getMessage(), 500);
+        }
+    }
+
     public function getAuthorsAndSeries($id)
     {
         return [

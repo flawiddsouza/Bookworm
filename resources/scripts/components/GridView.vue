@@ -28,7 +28,10 @@
                             </div>
                             <div v-if="item.book_type" class="field-row">
                                 <span class="field-label">Type:</span>
-                                <span class="field-value">{{ item.book_type }}</span>
+                                <span v-if="!item.editingType" class="field-value clickable" @click="startEditType(item)">{{ item.book_type }}</span>
+                                <select v-else v-model="item.selectedBookTypeId" @blur="saveBookType(item)" @keyup.escape="cancelEditType(item)" class="field-value-edit" :ref="`typeSelect-${item.book_id || item.id}`">
+                                    <option v-for="bookType in bookTypes" :key="bookType.id" :value="bookType.id">{{ bookType.name }}</option>
+                                </select>
                             </div>
                             <div v-if="item.started_reading_display" class="field-row">
                                 <span class="field-label">Started:</span>
@@ -106,7 +109,8 @@ export default {
             pageSwitch: 4,
             loading: false,
             refreshing: false,
-            timeout: null
+            timeout: null,
+            bookTypes: []
         }
     },
     watch: {
@@ -195,6 +199,61 @@ export default {
         refreshData() {
             this.refreshing = true
             this.fetchPage(this.paginator.currentPage, false, true)
+        },
+        startEditType(item) {
+            item.editingType = true
+            item.selectedBookTypeId = this.bookTypes.find(bt => bt.name === item.book_type)?.id
+            item.originalBookType = item.book_type
+
+            this.$nextTick(() => {
+                const bookId = item.book_id || item.id
+                const selectElement = this.$refs[`typeSelect-${bookId}`]
+                if (selectElement && selectElement.focus) {
+                    selectElement.focus()
+                }
+            })
+        },
+        async saveBookType(item) {
+            if (!item.selectedBookTypeId) {
+                this.cancelEditType(item)
+                return
+            }
+
+            const selectedBookType = this.bookTypes.find(bt => bt.id === item.selectedBookTypeId)
+            if (!selectedBookType || selectedBookType.name === item.originalBookType) {
+                this.cancelEditType(item)
+                return
+            }
+
+            try {
+                const bookId = item.book_id || item.id
+
+                await axios.put(`/json/manage-books/${bookId}/book-type`, {
+                    book_type_id: item.selectedBookTypeId
+                })
+
+                item.book_type = selectedBookType.name
+                item.editingType = false
+
+                this.$snotify.success('Book type updated')
+            } catch (error) {
+                console.error('Failed to update book type:', error)
+                this.cancelEditType(item)
+                this.$snotify.error('Failed to update book type')
+            }
+        },
+        cancelEditType(item) {
+            item.editingType = false
+            item.selectedBookTypeId = null
+            item.originalBookType = null
+        },
+        async fetchBookTypes() {
+            try {
+                const response = await axios.get('/json/book-types')
+                this.bookTypes = response.data
+            } catch (error) {
+                console.error('Failed to fetch book types:', error)
+            }
         }
     },
     created() {
@@ -206,6 +265,7 @@ export default {
                 this.refreshData()
             })
         }
+        this.fetchBookTypes()
     }
 }
 </script>
@@ -289,6 +349,28 @@ export default {
 .field-value {
     color: #333;
     margin-left: 0.25rem;
+}
+
+.field-value.clickable {
+    cursor: pointer;
+    color: #3b82f6;
+    text-decoration: underline;
+    transition: color 0.2s;
+}
+
+.field-value.clickable:hover {
+    color: #1d4ed8;
+}
+
+.field-value-edit {
+    margin-left: 0.25rem;
+    padding: 2px 4px;
+    border: 1px solid #3b82f6;
+    border-radius: 3px;
+    background: white;
+    font-size: inherit;
+    color: #333;
+    min-width: 100px;
 }
 
 .card-actions {
