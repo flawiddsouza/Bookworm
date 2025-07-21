@@ -11,6 +11,47 @@ use Illuminate\Support\Facades\Auth;
 
 class UserBooksController extends Controller
 {
+    private function getSortByConfig($status)
+    {
+        switch ($status) {
+            case 'READ':
+                return [
+                    [
+                        'column' => 'user_books.completed_reading',
+                        'direction' => 'desc'
+                    ],
+                    [
+                        'column' => 'user_books.updated_at',
+                        'direction' => 'desc'
+                    ]
+                ];
+
+            case 'CURRENTLY_READING,READ':
+                return [
+                    [
+                        'column' => 'user_books.completed_reading',
+                        'direction' => 'desc'
+                    ],
+                    [
+                        'column' => 'user_books.started_reading',
+                        'direction' => 'desc'
+                    ],
+                    [
+                        'column' => 'user_books.updated_at',
+                        'direction' => 'desc'
+                    ]
+                ];
+
+            default:
+                return [
+                    [
+                        'column' => 'user_books.updated_at',
+                        'direction' => 'desc'
+                    ]
+                ];
+        }
+    }
+
     public function index(Request $request)
     {
         $sqlDateFormat = env('SQL_DATE_FORMAT');
@@ -67,21 +108,7 @@ class UserBooksController extends Controller
             ->where('user_books.user_id', Auth::id())
             ->groupBy('user_books.id', 'books.id', 'book_types.id'),
             [
-                'sortBy' => $request->status === 'READ' ? [
-                    [
-                        'column' => 'user_books.completed_reading',
-                        'direction' => 'desc'
-                    ],
-                    [
-                        'column' => 'user_books.updated_at',
-                        'direction' => 'desc'
-                    ]
-                ] : [
-                    [
-                        'column' => 'user_books.updated_at',
-                        'direction' => 'desc'
-                    ]
-                ],
+                'sortBy' => $this->getSortByConfig($request->status),
                 'filterColumns' => [
                     'books.name',
                     'authors.name'
