@@ -12,6 +12,7 @@ class TrimStrings extends Middleware
      * @var array
      */
     protected $except = [
+        'notes', // don't trim notes as they may contain leading/trailing spaces intentionally
         'current_password',
         'password',
         'password_confirmation',
