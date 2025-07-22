@@ -25,7 +25,8 @@ export default {
             target.style.height = (target.scrollHeight) + 'px'
 
             if(scrollParent) {
-                scrollParent.scrollTo(scrollLeft, scrollTop)
+                const bufferSpace = 100
+                scrollParent.scrollTo(scrollLeft, scrollTop + bufferSpace)
             }
         },
         resizeTextareaNoEvent() {
