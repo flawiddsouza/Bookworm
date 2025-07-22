@@ -1,4 +1,5 @@
 import { createRouter, createWebHashHistory } from 'vue-router'
+import { setDocumentTitle, getRouteTitle } from '@/scripts/utils/title.js'
 
 import Home from '@/scripts/views/Home.vue'
 import ManageBooks from '@/scripts/views/ManageBooks.vue'
@@ -25,6 +26,11 @@ const routes = [
 const router = createRouter({
     history: createWebHashHistory(),
     routes
+})
+
+router.afterEach((to) => {
+    const title = getRouteTitle(to)
+    setDocumentTitle(title)
 })
 
 export default router

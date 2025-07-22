@@ -58,6 +58,7 @@
 <script>
 import ResizableTextarea from '@/scripts/components/ResizableTextarea.vue'
 import { ratings } from '@/scripts/sharedData.js'
+import { setDocumentTitle } from '@/scripts/utils/title.js'
 
 function debounce(fn, delay) {
     let timeoutID;
@@ -87,6 +88,9 @@ export default {
             let loader = this.$loading.show()
             axios.get(`/json/books/${this.bookId}`).then(response => {
                 this.book = response.data
+                if (this.book.book) {
+                    setDocumentTitle(this.book.book)
+                }
                 loader.hide()
             })
         },
