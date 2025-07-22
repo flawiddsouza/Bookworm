@@ -3,6 +3,7 @@
         <DataTable :fields="fields" route="/json/manage-book-types" item-actions-width="10em" :bus="bus">
             <template #actions>
                 <button @click="showModal = true">+ Add Book Type</button>
+                <button class="ml-0_5em" @click="openReorderModal">Reorder</button>
             </template>
             <template #item-actions="{ item }">
                 <button>View</button>
@@ -26,6 +27,19 @@
                 <button class="mt-1em">Save</button>
             </form>
         </Modal>
+        <Modal v-model:showModal="showReorderModal">
+            <template #title>Reorder Book Types</template>
+            <DragDropList
+                v-model:items="reorderList"
+                item-type="book-type"
+                @reorder="onReorder">
+                <template #item="{ item }">
+                    <span class="drag-handle">☰</span> {{ item.name }}
+                </template>
+                <template #empty>Loading...</template>
+            </DragDropList>
+            <button class="mt-1em" @click="saveReorder">Save Order</button>
+        </Modal>
     </ManageContainer>
 </template>
 
@@ -34,12 +48,14 @@ import ManageContainer from './ManageContainer.vue'
 import DataTable from '@/scripts/components/DataTable.vue'
 import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
+import DragDropList from '@/scripts/components/DragDropList.vue'
 
 export default {
     components: {
         ManageContainer,
         DataTable,
-        Modal
+        Modal,
+        DragDropList
     },
     data() {
         return {
@@ -55,7 +71,9 @@ export default {
             ],
             bus: mitt(),
             showModal: false,
-            bookType: {}
+            bookType: {},
+            showReorderModal: false,
+            reorderList: []
         }
     },
     computed: {
@@ -115,6 +133,29 @@ export default {
                 this.showModal = false
                 loader.hide()
                 this.$snotify.success('Book Type Deleted')
+            }).catch(response => {
+                loader.hide()
+                this.$snotify.error(response.data)
+            })
+        },
+        openReorderModal() {
+            this.showReorderModal = true
+            this.fetchBookTypesForReorder()
+        },
+        fetchBookTypesForReorder() {
+            axios.get('/json/manage-book-types').then(res => {
+                this.reorderList = res.data.paginator.data.sort((a, b) => a.sort_order - b.sort_order)
+            })
+        },
+        onReorder(event) {},
+        saveReorder() {
+            let loader = this.$loading.show()
+            const reordered = this.reorderList.map((item, i) => ({ id: item.id, sort_order: i + 1 }))
+            axios.post('/json/manage-book-types/reorder', { order: reordered }).then(() => {
+                this.bus.emit('refreshDataTable')
+                this.showReorderModal = false
+                loader.hide()
+                this.$snotify.success('Order Saved')
             }).catch(response => {
                 loader.hide()
                 this.$snotify.error(response.data)

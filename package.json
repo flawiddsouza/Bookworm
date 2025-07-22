@@ -13,6 +13,7 @@
         "vite": "^6.0.5"
     },
     "dependencies": {
+        "@atlaskit/pragmatic-drag-and-drop": "^1.7.4",
         "@vueform/multiselect": "^2.6.11",
         "axios": "^0.21.1",
         "mitt": "^2.1.0",

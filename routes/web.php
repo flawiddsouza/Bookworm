@@ -24,6 +24,7 @@ Route::group([ 'prefix' => '/json', 'middleware' => 'auth'], function() {
 
     Route::resource('/manage-authors', AuthorController::class);
     Route::resource('/manage-book-types', BookTypeController::class);
+    Route::post('/manage-book-types/reorder', [BookTypeController::class, 'reorder']);
 
     Route::get('/search/authors', [SearchController::class, 'getAuthors']);
     Route::get('/search/books', [SearchController::class, 'getBooks']);

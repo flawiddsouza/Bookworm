@@ -35,4 +35,20 @@ class BookTypeController extends Controller
     {
         return BookType::orderBy('sort_order')->get();
     }
+
+    public function reorder(Request $request)
+    {
+        $request->validate([
+            'order' => 'required|array',
+            'order.*.id' => 'required|integer|exists:book_types,id',
+            'order.*.sort_order' => 'required|integer|min:1'
+        ]);
+
+        foreach ($request->order as $item) {
+            BookType::where('id', $item['id'])
+                ->update(['sort_order' => $item['sort_order']]);
+        }
+
+        return response()->json(['message' => 'Order updated successfully']);
+    }
 }
