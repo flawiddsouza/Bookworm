@@ -46,6 +46,7 @@ class BookController extends Controller
             user_books.rating,
             CASE WHEN user_books.rating IS NOT NULL THEN CONCAT(user_books.rating, '/', 5) ELSE null END as rating_display,
             user_books.notes,
+            user_books.notes_type,
             user_books.reading_medium
         ")
         ->leftJoin('user_books', function($join) {
@@ -110,6 +111,10 @@ class BookController extends Controller
             $book->book = $book->display_name;
         }
 
+        if ($book->notes_type === config('constants.notes_type.json_date_marked')) {
+            $book->notes = json_decode($book->notes, true);
+        }
+
         return $book;
     }
 
@@ -124,6 +129,7 @@ class BookController extends Controller
             ],
             [
                 'reading_medium' => $request->reading_medium,
+                'notes_type' => $request->notes_type,
                 'notes' => $request->notes,
                 'rating' => $request->rating,
                 'status' => $request->status,

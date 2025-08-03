@@ -40,14 +40,84 @@
                         <label class="form-label">Reading Medium</label>
                         <input type="text" v-model="book.reading_medium" class="form-input" placeholder="e.g., Hardcover, Kindle, Audiobook">
                     </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Notes Type</label>
+                        <select :value="book.notes_type" @change="handleNotesTypeChange" class="form-select">
+                            <option :value="1">Plain Text</option>
+                            <option :value="2">Date Marked</option>
+                        </select>
+                    </div>
                 </div>
 
                 <div class="notes-section">
                     <div class="form-group">
                         <label class="form-label">Notes</label>
-                        <resizable-textarea>
+                        <resizable-textarea v-if="book.notes_type === 1">
                             <textarea v-model="book.notes" class="form-textarea" placeholder="Your thoughts about this book..." spellcheck="false"></textarea>
                         </resizable-textarea>
+                        <div v-if="book.notes_type === 2" style="display: flex; flex-direction: column; row-gap: 1rem;">
+                            <div v-for="(note, index) in book.notes" :key="index" class="note-entry">
+                                <div class="note-header">
+                                    <input
+                                        v-if="editingNoteIndex === index"
+                                        type="date"
+                                        v-model="editingNote.date"
+                                        class="form-input note-date-input"
+                                    >
+                                    <label v-else>{{ formatDate(note.date) }}</label>
+                                    <div class="note-actions">
+                                        <button
+                                            v-if="editingNoteIndex === index"
+                                            @click="saveNote(index)"
+                                            type="button"
+                                            class="btn btn-save"
+                                        >
+                                            Save
+                                        </button>
+                                        <button
+                                            v-if="editingNoteIndex === index"
+                                            @click="cancelEdit()"
+                                            type="button"
+                                            class="btn btn-cancel"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            v-if="editingNoteIndex !== index"
+                                            @click="editNote(index)"
+                                            type="button"
+                                            class="btn btn-edit"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            v-if="editingNoteIndex !== index && (!note.date && !note.text)"
+                                            @click="deleteNote(index)"
+                                            type="button"
+                                            class="btn btn-delete"
+                                        >
+                                            Delete
+                                        </button>
+                                    </div>
+                                </div>
+                                <div
+                                    v-if="editingNoteIndex === index"
+                                    class="form-textarea note-textarea"
+                                    contenteditable="plaintext-only"
+                                    spellcheck="false"
+                                    @input="editingNote.text = $event.target.innerText"
+                                    ref="noteTextarea"
+                                    style="min-height: 100px; outline: none; white-space: pre-wrap; word-break: break-word;"
+                                ></div>
+                                <div v-else style="white-space: pre-wrap; word-break: break-word;" class="note-content">{{ note.text }}</div>
+                            </div>
+                            <div class="add-note-section">
+                                <button @click="addNote()" type="button" class="btn btn-add-note">
+                                    + Add Note
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -59,6 +129,7 @@
 import ResizableTextarea from '@/scripts/components/ResizableTextarea.vue'
 import { ratings } from '@/scripts/sharedData.js'
 import { setDocumentTitle } from '@/scripts/utils/title.js'
+import dayjs from 'dayjs'
 
 function debounce(fn, delay) {
     let timeoutID;
@@ -80,7 +151,12 @@ export default {
             loaded: false,
             book: {},
             ratings,
-            autosaveDebounced: null
+            autosaveDebounced: null,
+            editingNoteIndex: null,
+            editingNote: {
+                date: '',
+                text: ''
+            }
         }
     },
     methods: {
@@ -100,6 +176,68 @@ export default {
             }).catch(response => {
                 this.$snotify.error(response.data)
             })
+        },
+        addNote() {
+            const today = dayjs().format('YYYY-MM-DD')
+            this.book.notes.push({
+                date: today,
+                text: ''
+            })
+            this.editNote(this.book.notes.length - 1)
+        },
+        editNote(index) {
+            this.editingNoteIndex = index
+            this.editingNote = {
+                date: this.book.notes[index].date,
+                text: this.book.notes[index].text
+            }
+            this.$nextTick(() => {
+                const textarea = this.$refs.noteTextarea[0]
+                if (textarea) {
+                    textarea.innerText = this.editingNote.text
+                }
+            })
+        },
+        saveNote(index) {
+            this.book.notes[index] = {
+                date: this.editingNote.date,
+                text: this.editingNote.text
+            }
+            this.cancelEdit()
+        },
+        cancelEdit() {
+            this.editingNoteIndex = null
+            this.editingNote = {
+                date: '',
+                text: ''
+            }
+        },
+        deleteNote(index) {
+            if (confirm('Are you sure you want to delete this note?')) {
+                this.book.notes.splice(index, 1)
+            }
+        },
+        handleNotesTypeChange(event) {
+            const newType = parseInt(event.target.value)
+            const oldType = this.book.notes_type
+
+            if (this.book.notes && this.book.notes.length > 0) {
+                if (!confirm('Changing the notes type will clear existing notes. Are you sure?')) {
+                    event.target.value = oldType
+                    return
+                }
+
+                if (newType === 1) {
+                    this.book.notes = ''
+                } else if (newType === 2) {
+                    this.book.notes = []
+                }
+            }
+
+            this.book.notes_type = newType
+        },
+        formatDate(date) {
+            return dayjs(date).format('DD-MMM-YY')
         }
     },
     watch: {
@@ -238,6 +376,118 @@ export default {
 
 .form-input::placeholder {
     color: #9ca3af;
+}
+
+/* Note entry styles */
+.note-entry {
+    padding: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    background: #f9fafb;
+}
+
+.note-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.note-date-input {
+    border: 0;
+    background: 0;
+    padding: 0;
+    font: inherit;
+}
+
+.note-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.btn {
+    padding: 0.375rem 0.75rem;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-edit {
+    background: #3b82f6;
+    color: white;
+    border-color: #3b82f6;
+}
+
+.btn-edit:hover {
+    background: #2563eb;
+    border-color: #2563eb;
+}
+
+.btn-delete {
+    background: #ef4444;
+    color: white;
+    border-color: #ef4444;
+}
+
+.btn-delete:hover {
+    background: #dc2626;
+    border-color: #dc2626;
+}
+
+.btn-save {
+    background: #10b981;
+    color: white;
+    border-color: #10b981;
+}
+
+.btn-save:hover {
+    background: #059669;
+    border-color: #059669;
+}
+
+.btn-cancel {
+    background: #6b7280;
+    color: white;
+    border-color: #6b7280;
+}
+
+.btn-cancel:hover {
+    background: #4b5563;
+    border-color: #4b5563;
+}
+
+.btn-add-note {
+    background: #8b5cf6;
+    color: white;
+    border-color: #8b5cf6;
+    width: 100%;
+    padding: 0.75rem;
+    font-size: 1rem;
+}
+
+.btn-add-note:hover {
+    background: #7c3aed;
+    border-color: #7c3aed;
+}
+
+.note-content {
+    background: white;
+    padding: 1rem;
+    border: 1px solid #d1d5db;
+    border-radius: 4px;
+    min-height: 50px;
+    line-height: 1.6;
+}
+
+.note-textarea {
+    min-height: 100px;
+}
+
+.add-note-section {
+    margin-top: 1rem;
 }
 
 /* Responsive design */
