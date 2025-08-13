@@ -53,9 +53,14 @@
                 <div class="notes-section">
                     <div class="form-group">
                         <label class="form-label">Notes</label>
-                        <resizable-textarea v-if="book.notes_type === 1">
-                            <textarea v-model="book.notes" class="form-textarea" placeholder="Your thoughts about this book..." spellcheck="false"></textarea>
-                        </resizable-textarea>
+                        <div v-if="book.notes_type === 1"
+                            class="form-textarea"
+                            contenteditable="plaintext-only"
+                            spellcheck="false"
+                            ref="plainNotes"
+                            @input="onPlainNotesInput"
+                            style="min-height: 250px; outline: none; white-space: pre-wrap; word-break: break-word;">
+                        </div>
                         <div v-if="book.notes_type === 2" style="display: flex; flex-direction: column; row-gap: 1rem;">
                             <div v-for="(note, index) in book.notes" :key="index" class="note-entry">
                                 <div class="note-header">
@@ -160,6 +165,9 @@ export default {
         }
     },
     methods: {
+        onPlainNotesInput(e) {
+            this.book.notes = e.target.innerText
+        },
         fetchBook() {
             let loader = this.$loading.show()
             axios.get(`/json/books/${this.bookId}`).then(response => {
@@ -168,6 +176,18 @@ export default {
                     setDocumentTitle(this.book.book)
                 }
                 loader.hide()
+
+                if (this.book.notes_type === 1) {
+                    this.$nextTick(() => {
+                        if (this.$refs.plainNotes) {
+                            this.$refs.plainNotes.innerText = this.book.notes || ''
+                        }
+
+                        this.autoScrollPageToBottom()
+                    })
+                } else if (this.book.notes_type === 2) {
+                    this.autoScrollPageToBottom()
+                }
             })
         },
         autosaveBook() {
@@ -238,6 +258,16 @@ export default {
         },
         formatDate(date) {
             return dayjs(date).format('DD-MMM-YY')
+        },
+        autoScrollPageToBottom() {
+            if (this.book.status === 'CURRENTLY_READING') {
+                this.$nextTick(() => {
+                    document.documentElement.scrollTo({
+                        top: document.documentElement.scrollHeight,
+                        behavior: 'smooth'
+                    })
+                })
+            }
         }
     },
     watch: {
