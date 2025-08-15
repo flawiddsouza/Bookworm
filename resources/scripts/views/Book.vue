@@ -112,6 +112,8 @@
                                     contenteditable="plaintext-only"
                                     spellcheck="false"
                                     @input="editingNote.text = $event.target.innerText"
+                                    @blur="saveNote(index)"
+                                    @keydown="handleNoteKeydown($event)"
                                     ref="noteTextarea"
                                     style="min-height: 100px; outline: none; white-space: pre-wrap; word-break: break-word;"
                                 ></div>
@@ -167,6 +169,14 @@ export default {
     methods: {
         onPlainNotesInput(e) {
             this.book.notes = e.target.innerText
+        },
+        handleNoteKeydown(e) {
+            if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+                e.preventDefault()
+                if (this.$refs.noteTextarea && this.$refs.noteTextarea[0]) {
+                    this.$refs.noteTextarea[0].blur()
+                }
+            }
         },
         fetchBook() {
             let loader = this.$loading.show()
