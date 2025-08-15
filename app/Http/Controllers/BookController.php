@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Classes\Formatter;
 use App\Models\Book;
 use App\Models\UserBook;
+use App\Models\UserBookNoteVersion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -123,8 +124,19 @@ class BookController extends Controller
         DB::beginTransaction();
 
         try {
+            $userId = Auth::id();
+
+            $userBook = UserBook::where('book_id', $id)->where('user_id', $userId)->first();
+
+            if ($userBook && $userBook->notes !== null && $userBook->notes !== $request->notes) {
+                UserBookNoteVersion::create([
+                    'user_book_id' => $userBook->id,
+                    'notes' => $userBook->notes,
+                ]);
+            }
+
             UserBook::updateOrCreate([
-                'user_id' => Auth::id(),
+                'user_id' => $userId,
                 'book_id' => $id
             ],
             [
