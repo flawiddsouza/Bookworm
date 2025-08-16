@@ -164,6 +164,7 @@ export default {
         return {
             loaded: false,
             book: {},
+            originalBook: null,
             ratings,
             autosaveDebounced: null,
             editingNoteIndex: null,
@@ -189,6 +190,7 @@ export default {
             let loader = this.$loading.show()
             axios.get(`/json/books/${this.bookId}`).then(response => {
                 this.book = response.data
+                this.originalBook = JSON.parse(JSON.stringify(this.book))
                 if (this.book.book) {
                     setDocumentTitle(this.book.book)
                 }
@@ -208,8 +210,14 @@ export default {
             })
         },
         autosaveBook() {
+            if (this.originalBook && JSON.stringify(this.book) === JSON.stringify(this.originalBook)) {
+                this.$snotify.info('Nothing to save')
+                return
+            }
+
             axios.post(`/json/books/${this.book.id}`, this.book).then(() => {
                 this.$snotify.success('Book Autosaved')
+                this.originalBook = JSON.parse(JSON.stringify(this.book))
             }).catch(response => {
                 this.$snotify.error(response.data)
             })
