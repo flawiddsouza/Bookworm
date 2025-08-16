@@ -117,7 +117,14 @@
                                     ref="noteTextarea"
                                     style="min-height: 100px; outline: none; white-space: pre-wrap; word-break: break-word;"
                                 ></div>
-                                <div v-else style="white-space: pre-wrap; word-break: break-word;" class="note-content">{{ note.text }}</div>
+                                <div
+                                    v-else
+                                    style="white-space: pre-wrap; word-break: break-word;"
+                                    class="note-content"
+                                    @click="editNote(index)"
+                                >
+                                    {{ note.text }}
+                                </div>
                             </div>
                             <div class="add-note-section">
                                 <button @click="addNote()" type="button" class="btn btn-add-note">
