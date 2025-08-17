@@ -240,6 +240,12 @@ export default {
                 const textarea = this.$refs.noteTextarea[0]
                 if (textarea) {
                     textarea.innerText = this.editingNote.text
+                    const range = document.createRange()
+                    range.selectNodeContents(textarea)
+                    range.collapse(false)
+                    const sel = window.getSelection()
+                    sel.removeAllRanges()
+                    sel.addRange(range)
                 }
             })
         },
