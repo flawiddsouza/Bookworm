@@ -112,7 +112,7 @@
                                     contenteditable="plaintext-only"
                                     spellcheck="false"
                                     @input="editingNote.text = $event.target.innerText"
-                                    @blur="saveNote(index)"
+                                    @blur="handleNoteBlur($event, index)"
                                     @keydown="handleNoteKeydown($event)"
                                     ref="noteTextarea"
                                     style="min-height: 100px; outline: none; white-space: pre-wrap; word-break: break-word;"
@@ -255,6 +255,24 @@ export default {
                 text: this.editingNote.text
             }
             this.cancelEdit()
+        },
+        handleNoteBlur(e, index) {
+            // Only save if focus is leaving the note editor, not moving to date input or buttons
+            const next = e.relatedTarget;
+            if (!next || !next.classList) {
+                this.saveNote(index);
+                return;
+            }
+            // If next element is inside the note editor, do not save
+            if (
+                next.classList.contains('note-date-input') ||
+                next.classList.contains('btn-save') ||
+                next.classList.contains('btn-cancel')
+            ) {
+                // Do not save
+                return;
+            }
+            this.saveNote(index);
         },
         cancelEdit() {
             this.editingNoteIndex = null
