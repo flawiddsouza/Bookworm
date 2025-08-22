@@ -113,7 +113,7 @@ class BookController extends Controller
         }
 
         if ($book->notes_type === config('constants.notes_type.json_date_marked')) {
-            $book->notes = json_decode($book->notes, true);
+            $book->notes = $book->notes ? json_decode($book->notes, true) : [];
         }
 
         return $book;
