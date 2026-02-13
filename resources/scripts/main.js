@@ -35,14 +35,60 @@ import axios from 'axios'
 
 window.axios = axios
 
+// Track if we're currently refreshing the token to avoid duplicate refresh attempts
+let isRefreshing = false
+let failedQueue = []
+
+const processQueue = (error, token = null) => {
+    failedQueue.forEach(prom => {
+        if (error) {
+            prom.reject(error)
+        } else {
+            prom.resolve(token)
+        }
+    })
+    failedQueue = []
+}
+
 axios.interceptors.response.use(response => {
     return response
 }, error => {
-    if(error.response.status === 401) {
-        window.location.reload()
+    const originalRequest = error.config
+
+    // If we get a 401 or 419 error, try to refresh the CSRF token and retry
+    if ((error.response.status === 401 || error.response.status === 419) && !originalRequest._retry) {
+        if (isRefreshing) {
+            // If we're already refreshing, queue this request
+            return new Promise((resolve, reject) => {
+                failedQueue.push({ resolve, reject })
+            }).then(() => {
+                return axios(originalRequest)
+            }).catch(err => {
+                return Promise.reject(err)
+            })
+        }
+
+        originalRequest._retry = true
+        isRefreshing = true
+
+        // Fetch a fresh CSRF token by making a simple GET request
+        // Laravel will automatically set a new XSRF-TOKEN cookie
+        return axios.get('/')
+            .then(() => {
+                isRefreshing = false
+                processQueue(null, null)
+                // Retry the original request with the fresh token
+                return axios(originalRequest)
+            })
+            .catch(refreshErr => {
+                isRefreshing = false
+                processQueue(refreshErr, null)
+
+                // If refreshing fails, user is likely logged out - redirect to login
+                window.location.href = '/login'
+                return Promise.reject(refreshErr)
+            })
     }
-    if(error.response.status === 419) { // CSRF token mismatch
-        window.location.reload()
-    }
+
     return Promise.reject(error.response)
 })
