@@ -3,7 +3,7 @@
         <input type="search" v-model="search" :placeholder="placeholder" onkeyup="this.setAttribute('value', this.value)" onsearch="this.setAttribute('value', this.value)">
         <div v-if="search.length > 0">
             <div v-if="status">{{ status }}</div>
-            <div v-for="result in results" class="search-result" :key="result.id">
+            <div v-for="result in results" class="search-result" :key="result.id" @click="selectResult(result)">
                 <slot :result="result">
                     {{ result }}
                 </slot>
@@ -38,6 +38,10 @@ export default {
         }
     },
     methods: {
+        selectResult(result) {
+            this.$emit('select', result.id)
+            this.search = ''
+        },
         fetchResults() {
             this.results = []
             this.status = 'Loading...'

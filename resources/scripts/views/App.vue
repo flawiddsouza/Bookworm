@@ -26,9 +26,9 @@
                 </div>
 
                 <div class="ml-1em navbar-search">
-                    <SearchBox placeholder="Find books..." url="/json/search/books">
+                    <SearchBox placeholder="Find books..." url="/json/search/books" @select="loadBook($event)">
                         <template #default="{ result }">
-                            <div @click="loadBook(result.id)">{{ result.name }} by {{ result.author }}</div>
+                            <div>{{ result.name }} by {{ result.author }}</div>
                         </template>
                     </SearchBox>
                 </div>
