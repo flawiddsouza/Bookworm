@@ -68,11 +68,9 @@
                     </label>
                 </div>
                 <div class="mt-1em">
-                    <label>Notes<br>
-                        <resizable-textarea>
-                            <textarea v-model="book.notes" class="w-100p"></textarea>
-                        </resizable-textarea>
-                    </label>
+                    <label>Notes</label><br>
+                    <PlainNotes v-if="book.notes_type !== 2" v-model="book.notes" />
+                    <DateMarkedNotes v-else v-model="book.notes" />
                 </div>
                 <div class="mt-1em">
                     <label>Reading Medium<br>
@@ -88,19 +86,21 @@
 
 <script>
 import DataTable from '@/scripts/components/DataTable.vue'
+import DateMarkedNotes from '@/scripts/components/DateMarkedNotes.vue'
 import GridView from '@/scripts/components/GridView.vue'
 import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
-import ResizableTextarea from '@/scripts/components/ResizableTextarea.vue'
+import PlainNotes from '@/scripts/components/PlainNotes.vue'
 import Tabs from '@/scripts/components/Tabs.vue'
 import { ratings } from '@/scripts/sharedData.js'
 
 export default {
     components: {
         DataTable,
+        DateMarkedNotes,
         GridView,
         Modal,
-        ResizableTextarea,
+        PlainNotes,
         Tabs
     },
     data() {
@@ -217,11 +217,22 @@ export default {
         },
         startEdit(item) {
             this.book = JSON.parse(JSON.stringify(item))
+            if (this.book.notes_type === 2) {
+                try {
+                    this.book.notes = JSON.parse(this.book.notes || '[]')
+                } catch {
+                    this.book.notes = []
+                }
+            }
             this.showModal = true
         },
         updateBook() {
             let loader = this.$loading.show()
-            axios.put(`/json/user/books/${this.book.id}`, this.book).then(() => {
+            const payload = { ...this.book }
+            if (payload.notes_type === 2) {
+                payload.notes = JSON.stringify(payload.notes)
+            }
+            axios.put(`/json/user/books/${this.book.id}`, payload).then(() => {
                 this.bus.emit('refreshDataTable')
                 this.showModal = false
                 loader.hide()

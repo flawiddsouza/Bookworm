@@ -88,6 +88,7 @@ class UserBooksController extends Controller
                 user_books.rating,
                 CASE WHEN user_books.rating IS NOT NULL THEN CONCAT(user_books.rating, '/', 5) ELSE null END as rating_display,
                 user_books.notes,
+                user_books.notes_type,
                 user_books.reading_medium,
                 user_books.book_id
             ")
