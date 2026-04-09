@@ -1,10 +1,15 @@
 <template>
-    <div class="modal-container" v-if="showModal" @click="hideModal">
-        <div class="modal-inner-container">
-            <button class="modal__close" @click="$emit('update:showModal', false)">X</button>
-            <div class="modal__title"><slot name="title"></slot></div>
-            <div class="modal__content">
+    <div class="modal-overlay" v-if="showModal" :style="{ zIndex }" @click.self="$emit('update:showModal', false)">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-title"><slot name="title"></slot></div>
+                <button type="button" class="modal-close" @click="$emit('update:showModal', false)">✕</button>
+            </div>
+            <div class="modal-body">
                 <slot></slot>
+            </div>
+            <div class="modal-footer" v-if="$slots.footer">
+                <slot name="footer"></slot>
             </div>
         </div>
     </div>
@@ -16,59 +21,76 @@ export default {
         showModal: {
             type: Boolean,
             default: false
+        },
+        zIndex: {
+            type: Number,
+            default: 3
         }
     },
-    methods: {
-        hideModal(e) {
-            // document.body.contains(e.target) is needed when the clicked element is no longer in the DOM
-            // if you don't add it, the orphaned e.target element will close the modal, as its "closest" will
-            // not yield the .modal-inner-container class element or any other elements for that matter
-            // because it has been removed by the user
-            if(!e.target.closest('.modal-inner-container') && document.body.contains(e.target)) {
-                this.$emit('update:showModal', false)
-            }
-        }
-    }
+    emits: ['update:showModal']
 }
 </script>
 
 <style scoped>
-.modal-container {
+.modal-overlay {
     position: fixed;
-    top: 0;
-    left: 0;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
     display: flex;
-    justify-content: center;
     align-items: center;
-    height: 100vh;
-    width: 100vw;
-    background: #00000026;
+    justify-content: center;
     z-index: 3;
 }
 
-.modal-inner-container {
-    position: relative;
+.modal {
     background: white;
-    padding: 1.5rem;
-    border-radius: 2px;
-    box-shadow: 0 19px 38px rgb(0 0 0 / 30%), 0 15px 12px rgb(0 0 0 / 22%);
+    border-radius: 6px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
     min-width: 23rem;
-    max-width: 60%;
+    max-width: min(60%, 95vw);
     max-height: 90%;
-    overflow-y: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
-.modal__close {
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
+.modal-header {
+    padding: 1em 1.2em;
+    border-bottom: 1px solid lightgrey;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-shrink: 0;
 }
 
-.modal__title {
-    font-size: 1.3rem;
+.modal-title {
+    font-size: 1em;
     font-weight: 700;
-    margin-right: 2rem;
-    margin-bottom: 1rem;
-    max-width: 31em;
+    margin-right: 1em;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.2em;
+    cursor: pointer;
+    color: #666;
+    padding: 0;
+    line-height: 1;
+}
+
+.modal-body {
+    padding: 1.2em;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.modal-footer {
+    padding: 1em 1.2em;
+    border-top: 1px solid lightgrey;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.5em;
+    flex-shrink: 0;
 }
 </style>

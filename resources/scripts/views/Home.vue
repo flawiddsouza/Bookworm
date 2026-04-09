@@ -97,7 +97,7 @@ import Modal from '@/scripts/components/Modal.vue'
 import PlainNotes from '@/scripts/components/PlainNotes.vue'
 import Tabs from '@/scripts/components/Tabs.vue'
 import AddBookModal from '@/scripts/components/AddBookModal.vue'
-import { ratings } from '@/scripts/sharedData.js'
+import { getBookTypes, ratings } from '@/scripts/sharedData.js'
 
 export default {
     components: {
@@ -269,19 +269,20 @@ export default {
             if (match) this.activeTab = match.filter
             this.bus.emit('refreshDataTable')
         },
-        fetchBookTypes() {
-            axios.get('/json/book-types').then(response => {
+        async fetchBookTypes() {
+            try {
+                const bookTypes = await getBookTypes()
                 this.bookTypeFilters = [
                     { name: 'All', filter: 'ALL' },
-                    ...response.data.map(bookType => ({
+                    ...bookTypes.map(bookType => ({
                         name: bookType.name,
                         filter: bookType.id.toString()
                     }))
                 ]
-            }).catch(error => {
+            } catch (error) {
                 console.error('Failed to fetch book types:', error)
                 this.bookTypeFilters = [{ name: 'All', filter: 'ALL' }]
-            })
+            }
         }
     },
     created() {

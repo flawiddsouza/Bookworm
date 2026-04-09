@@ -13,19 +13,20 @@
         </DataTable>
         <Modal v-model:showModal="showModal">
             <template #title>{{ modalLabel }} Book Type</template>
-            <form @submit.prevent="addBookType">
-                <div>
-                    <label>Book Type<br>
-                        <input type="text" required v-model="bookType.name" v-focus class="w-100p">
-                    </label>
+            <form id="book-type-form" @submit.prevent="addBookType">
+                <div class="form-group">
+                    <label>Book Type</label>
+                    <input type="text" required v-model="bookType.name" v-focus>
                 </div>
-                <div class="mt-1em">
-                    <label>Sort Order<br>
-                        <input type="number" v-model="bookType.sort_order" class="w-100p">
-                    </label>
+                <div class="form-group">
+                    <label>Sort Order</label>
+                    <input type="number" v-model="bookType.sort_order">
                 </div>
-                <button class="mt-1em">Save</button>
             </form>
+            <template #footer>
+                <button type="button" class="secondary" @click="showModal = false">Cancel</button>
+                <button type="submit" form="book-type-form">Save</button>
+            </template>
         </Modal>
         <Modal v-model:showModal="showReorderModal">
             <template #title>Reorder Book Types</template>
@@ -38,7 +39,10 @@
                 </template>
                 <template #empty>Loading...</template>
             </DragDropList>
-            <button class="mt-1em" @click="saveReorder">Save Order</button>
+            <template #footer>
+                <button type="button" class="secondary" @click="showReorderModal = false">Cancel</button>
+                <button type="button" @click="saveReorder">Save Order</button>
+            </template>
         </Modal>
     </ManageContainer>
 </template>

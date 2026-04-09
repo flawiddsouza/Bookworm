@@ -74,7 +74,7 @@ export default {
     border-right: 1px solid lightgrey;
     border-bottom: 1px solid lightgrey;
     max-height: 15em;
-    z-index: 1;
+    z-index: 3;
     overflow-y: auto;
     font-size: 0.9em;
 }

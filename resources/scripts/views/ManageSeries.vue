@@ -12,11 +12,10 @@
         </DataTable>
         <Modal v-model:showModal="showModal">
             <template #title>{{ modalLabel }} Series</template>
-            <form @submit.prevent="addSeries">
-                <div>
-                    <label>Series Name<br>
-                        <input type="text" required v-model="series.name" v-focus class="w-100p">
-                    </label>
+            <form id="series-form" @submit.prevent="addSeries">
+                <div class="form-group">
+                    <label>Series Name</label>
+                    <input type="text" required v-model="series.name" v-focus>
                 </div>
                 <div class="mt-1em">
                     <table class="table">
@@ -85,9 +84,11 @@
                     </table>
                     <button type="button" @click="books.push({})" class="mt-1em">Add Book +</button>
                 </div>
-                <div class="mt-1em"></div>
-                <button class="mt-1em">Save</button>
             </form>
+            <template #footer>
+                <button type="button" class="secondary" @click="showModal = false">Cancel</button>
+                <button type="submit" form="series-form">Save</button>
+            </template>
         </Modal>
     </ManageContainer>
 </template>

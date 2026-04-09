@@ -1,6 +1,6 @@
-@import "reset.css";
-@import "functional.css";
-@import "components.css";
+@import "./reset.css";
+@import "./functional.css";
+@import "./components.css";
 
 :root {
     --border-color: lightgrey;

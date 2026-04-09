@@ -30,3 +30,25 @@ export const {ratings} = {
         }
     ]
 }
+
+let bookTypesRequest = null
+let cachedBookTypes = null
+
+export async function getBookTypes(forceRefresh = false) {
+    if (cachedBookTypes && !forceRefresh) {
+        return cachedBookTypes
+    }
+
+    if (!bookTypesRequest || forceRefresh) {
+        bookTypesRequest = axios.get('/json/book-types').then(({ data }) => {
+            cachedBookTypes = data
+            return data
+        }).finally(() => {
+            if (forceRefresh) {
+                bookTypesRequest = null
+            }
+        })
+    }
+
+    return bookTypesRequest
+}

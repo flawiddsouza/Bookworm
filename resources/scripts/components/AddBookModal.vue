@@ -109,6 +109,8 @@
 </template>
 
 <script>
+import { getBookTypes } from '@/scripts/sharedData.js'
+
 function debounce(fn, delay) {
     let t
     return function(...args) {
@@ -146,9 +148,22 @@ export default {
     watch: {
         modelValue(val) {
             if (!val) this.reset()
+            if (val) this.ensureBookTypesLoaded()
         }
     },
     methods: {
+        async ensureBookTypesLoaded() {
+            if (this.bookTypes.length > 0) {
+                return
+            }
+
+            try {
+                this.bookTypes = await getBookTypes()
+            } catch (error) {
+                console.error('Failed to fetch book types:', error)
+                this.$snotify.error('Failed to load book types')
+            }
+        },
         highlight(text) {
             if (!this.authorQuery) return text
             const escaped = this.authorQuery.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -255,9 +270,6 @@ export default {
             this.selectedAuthorId = null
             this.authorIsNew = false
         }
-    },
-    created() {
-        axios.get('/json/book-types').then(res => { this.bookTypes = res.data })
     }
 }
 </script>

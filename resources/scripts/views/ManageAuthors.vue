@@ -12,14 +12,16 @@
         </DataTable>
         <Modal v-model:showModal="showModal">
             <template #title>{{ modalLabel }} Author</template>
-            <form @submit.prevent="addAuthor">
-                <div>
-                    <label>Author Name<br>
-                        <input type="text" required v-model="author.name" v-focus class="w-100p">
-                    </label>
+            <form id="author-form" @submit.prevent="addAuthor">
+                <div class="form-group">
+                    <label>Author Name</label>
+                    <input type="text" required v-model="author.name" v-focus>
                 </div>
-                <button class="mt-1em">Save</button>
             </form>
+            <template #footer>
+                <button type="button" class="secondary" @click="showModal = false">Cancel</button>
+                <button type="submit" form="author-form">Save</button>
+            </template>
         </Modal>
     </ManageContainer>
 </template>

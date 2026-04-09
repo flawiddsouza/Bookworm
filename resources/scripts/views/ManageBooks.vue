@@ -36,23 +36,20 @@
         </GridView>
         <Modal v-model:showModal="showModal">
             <template #title>{{ modalLabel }} Book</template>
-            <form @submit.prevent="addBook">
-                <div>
-                    <label>Book Name<br>
-                        <input type="text" required v-model="book.name" v-focus class="w-100p">
-                    </label>
+            <form id="book-form" @submit.prevent="addBook">
+                <div class="form-group">
+                    <label>Book Name</label>
+                    <input type="text" required v-model="book.name" v-focus>
                 </div>
-                <div class="mt-1em">
-                    <label>Book Type<br>
-                        <select required v-model="book.book_type_id" class="w-100p">
-                            <option v-for="bookType in bookTypes" :value="bookType.id">{{ bookType.name }}</option>
-                        </select>
-                    </label>
+                <div class="form-group">
+                    <label>Book Type</label>
+                    <select required v-model="book.book_type_id">
+                        <option v-for="bookType in bookTypes" :key="bookType.id" :value="bookType.id">{{ bookType.name }}</option>
+                    </select>
                 </div>
-                <div class="mt-1em">
-                    <label>Cover Image URL<br>
-                        <input type="text" v-model="book.cover_image_url" class="w-100p">
-                    </label>
+                <div class="form-group">
+                    <label>Cover Image URL</label>
+                    <input type="text" v-model="book.cover_image_url">
                 </div>
                 <div class="mt-1em">
                     <table class="table">
@@ -125,44 +122,46 @@
                     <button type="button" @click="authors.push({})" class="mt-1em">Add Author +</button>
                 </div>
                 <div class="mt-1em"></div>
-                <button class="mt-1em">Save</button>
             </form>
+            <template #footer>
+                <button type="button" class="secondary" @click="showModal = false">Cancel</button>
+                <button type="submit" form="book-form">Save</button>
+            </template>
         </Modal>
 
         <!-- Quick Add Author Modal -->
-        <Modal v-model:showModal="showAddAuthorModal">
+        <Modal v-model:showModal="showAddAuthorModal" :z-index="4">
             <template #title>Add Author</template>
-            <form @submit.prevent="addNewAuthor">
-                <div>
-                    <label>Author Name<br>
-                        <input type="text" required v-model="newAuthor.name" v-focus class="w-100p">
-                    </label>
-                </div>
-                <div class="mt-1em">
-                    <button type="submit">Add Author</button>
-                    <button type="button" @click="showAddAuthorModal = false" class="ml-0_5em">Cancel</button>
+            <form id="add-author-form" @submit.prevent="addNewAuthor">
+                <div class="form-group">
+                    <label>Author Name</label>
+                    <input type="text" required v-model="newAuthor.name" v-focus>
                 </div>
             </form>
+            <template #footer>
+                <button type="button" class="secondary" @click="showAddAuthorModal = false">Cancel</button>
+                <button type="submit" form="add-author-form">Add Author</button>
+            </template>
         </Modal>
 
         <!-- Add to My List Modal -->
         <Modal v-model:showModal="showAddToListModal">
             <template #title>Add to My List</template>
-            <form @submit.prevent="addToList">
-                <div>
-                    <label>{{ addToListBook.display_name }}<br>
-                        <select v-model="addToListStatus" class="w-100p" required>
-                            <option value="TO_READ">To Read</option>
-                            <option value="CURRENTLY_READING">Currently Reading</option>
-                            <option value="READ">Read</option>
-                            <option value="ABANDONED">Abandoned</option>
-                        </select>
-                    </label>
-                </div>
-                <div class="mt-1em">
-                    <button type="submit">Add</button>
+            <form id="add-to-list-form" @submit.prevent="addToList">
+                <div class="form-group">
+                    <label>{{ addToListBook.display_name }}</label>
+                    <select v-model="addToListStatus" required>
+                        <option value="TO_READ">To Read</option>
+                        <option value="CURRENTLY_READING">Currently Reading</option>
+                        <option value="READ">Read</option>
+                        <option value="ABANDONED">Abandoned</option>
+                    </select>
                 </div>
             </form>
+            <template #footer>
+                <button type="button" class="secondary" @click="showAddToListModal = false">Cancel</button>
+                <button type="submit" form="add-to-list-form">Add</button>
+            </template>
         </Modal>
     </ManageContainer>
 </template>

@@ -9,11 +9,26 @@ services:
         environment:
             APACHE_DOCUMENT_ROOT: /var/www/html/public
         volumes:
-            - '.:/var/www/html'
+            - type: bind
+              source: .
+              target: /var/www/html
+            - type: volume
+              source: bookworm-vendor
+              target: /var/www/html/vendor
+            - type: volume
+              source: bookworm-bootstrap-cache
+              target: /var/www/html/bootstrap/cache
+            - type: volume
+              source: bookworm-storage-framework
+              target: /var/www/html/storage/framework
         networks:
             - sail
         extra_hosts:
             - 'host.docker.internal:host-gateway'
+volumes:
+    bookworm-vendor:
+    bookworm-bootstrap-cache:
+    bookworm-storage-framework:
 networks:
     sail:
         driver: bridge

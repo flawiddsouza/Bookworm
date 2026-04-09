@@ -87,6 +87,8 @@
 </template>
 
 <script>
+import { getBookTypes } from '@/scripts/sharedData.js'
+
 export default {
     props: {
         route: String,
@@ -121,6 +123,17 @@ export default {
         }
     },
     methods: {
+        async ensureBookTypesLoaded() {
+            if (this.bookTypes.length > 0) {
+                return
+            }
+
+            try {
+                this.bookTypes = await getBookTypes()
+            } catch (error) {
+                console.error('Failed to fetch book types:', error)
+            }
+        },
         filterItems() {
             clearTimeout(this.timeout)
             this.timeout = setTimeout(() => {
@@ -200,7 +213,13 @@ export default {
             this.refreshing = true
             this.fetchPage(this.paginator.currentPage, false, true)
         },
-        startEditType(item) {
+        async startEditType(item) {
+            await this.ensureBookTypesLoaded()
+
+            if (this.bookTypes.length === 0) {
+                return
+            }
+
             item.editingType = true
             item.selectedBookTypeId = this.bookTypes.find(bt => bt.name === item.book_type)?.id
             item.originalBookType = item.book_type
@@ -246,14 +265,6 @@ export default {
             item.editingType = false
             item.selectedBookTypeId = null
             item.originalBookType = null
-        },
-        async fetchBookTypes() {
-            try {
-                const response = await axios.get('/json/book-types')
-                this.bookTypes = response.data
-            } catch (error) {
-                console.error('Failed to fetch book types:', error)
-            }
         }
     },
     created() {
@@ -265,7 +276,6 @@ export default {
                 this.refreshData()
             })
         }
-        this.fetchBookTypes()
     }
 }
 </script>

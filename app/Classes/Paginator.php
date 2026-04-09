@@ -24,10 +24,11 @@ class Paginator
 {
     public static function generate($query, $params, $request)
     {
-        $unfilteredTotal = $query->count();
-        $paginator = $query;
+        $paginator = clone $query;
+        $hasFilter = isset($params['filterColumns']) && isset($request->filter) && $request->filter !== '';
+        $unfilteredTotal = $hasFilter ? (clone $query)->count() : null;
 
-        if(isset($params['filterColumns']) && isset($request->filter) && $request->filter !== '') {
+        if($hasFilter) {
             $paginator->where(function($where) use($params, $request) {
                 foreach($params['filterColumns'] as $filterColumn) {
                     $where->orWhere($filterColumn, 'ilike', '%' . $request->filter . '%');
@@ -42,7 +43,7 @@ class Paginator
 
         return [
             'paginator' => $paginator,
-            'unfiltered_total' => $unfilteredTotal
+            'unfiltered_total' => $unfilteredTotal ?? $paginator->total()
         ];
     }
 

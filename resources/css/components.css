@@ -82,3 +82,46 @@ table.table :is(th, td)  {
 .status-read              { background: #f3e5f5; color: #6a1b9a; }
 .status-abandoned         { background: #fce4ec; color: #b71c1c; }
 .status-none              { background: #f0f0f0; color: #888; }
+
+/* ── Form inputs (scoped to .form-group to avoid affecting tabs, filters, etc.) ── */
+
+.form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #333;
+}
+
+.form-group input:not([type="checkbox"]):not([type="radio"]):not(.b-0),
+.form-group select:not(.b-0) {
+    width: 100%;
+    padding: 7px 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: inherit;
+    box-sizing: border-box;
+}
+
+.form-group input:not([type="checkbox"]):not([type="radio"]):not(.b-0):focus,
+.form-group select:not(.b-0):focus {
+    outline: none;
+    border-color: #f7c00c;
+    box-shadow: 0 0 0 2px rgba(247, 192, 12, 0.2);
+}
+
+/* Suppress glow on borderless table inputs */
+input.b-0:focus {
+    box-shadow: none;
+}
+
+.form-group {
+    margin-bottom: 1em;
+}
+
+button.secondary {
+    background: white;
+    border-color: #aaa;
+    color: #555;
+}
