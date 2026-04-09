@@ -38,4 +38,5 @@ Route::group([ 'prefix' => '/json', 'middleware' => 'auth'], function() {
 
     Route::get('/books/{id}', [BookController::class, 'getBook']);
     Route::post('/books/{id}', [BookController::class, 'postBook']);
+    Route::post('/books/{id}/add-to-list', [BookController::class, 'addToList']);
 });

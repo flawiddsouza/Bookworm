@@ -16,10 +16,13 @@
                     class="ml-1em"
                 />
             </div>
-            <Tabs
-                :tabs="viewModeOptions"
-                v-model="viewMode"
-            />
+            <div class="d-f flex-ai-c" style="gap: 0.5em;">
+                <button @click="showAddBookModal = true">+ Add Book</button>
+                <Tabs
+                    :tabs="viewModeOptions"
+                    v-model="viewMode"
+                />
+            </div>
         </div>
         <div>
             <DataTable v-if="viewMode === 'table'" :fields="fields" :field-html="fieldHtml" :route="routeUrl" item-actions-width="15em" :bus="bus">
@@ -81,6 +84,7 @@
                 <button class="mt-1em">Save</button>
             </form>
         </Modal>
+        <AddBookModal v-model="showAddBookModal" @book-added="onBookAdded" />
     </div>
 </template>
 
@@ -92,6 +96,7 @@ import mitt from 'mitt'
 import Modal from '@/scripts/components/Modal.vue'
 import PlainNotes from '@/scripts/components/PlainNotes.vue'
 import Tabs from '@/scripts/components/Tabs.vue'
+import AddBookModal from '@/scripts/components/AddBookModal.vue'
 import { ratings } from '@/scripts/sharedData.js'
 
 export default {
@@ -101,7 +106,8 @@ export default {
         GridView,
         Modal,
         PlainNotes,
-        Tabs
+        Tabs,
+        AddBookModal
     },
     data() {
         return {
@@ -138,6 +144,7 @@ export default {
             bus: mitt(),
             fieldHtml: ['notes'],
             showModal: false,
+            showAddBookModal: false,
             book: {},
             ratings
         }
@@ -256,6 +263,11 @@ export default {
                 loader.hide()
                 this.$snotify.error(response.data)
             })
+        },
+        onBookAdded(status) {
+            const match = this.tabs.find(t => t.filter === status)
+            if (match) this.activeTab = match.filter
+            this.bus.emit('refreshDataTable')
         },
         fetchBookTypes() {
             axios.get('/json/book-types').then(response => {

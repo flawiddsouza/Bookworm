@@ -43,6 +43,7 @@ export default {
     height: 100vh;
     width: 100vw;
     background: #00000026;
+    z-index: 3;
 }
 
 .modal-inner-container {

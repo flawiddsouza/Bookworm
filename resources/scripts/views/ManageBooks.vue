@@ -6,7 +6,7 @@
                 v-model="viewMode"
             />
         </template>
-        <DataTable v-if="viewMode === 'table'" :fields="fields" route="/json/manage-books" item-actions-width="10em" :bus="bus">
+        <DataTable v-if="viewMode === 'table'" :fields="fields" route="/json/manage-books" item-actions-width="18%" :bus="bus" :fieldHtmlMutations="statusBadgeMutations" :fieldClass="{ user_status: 'col-status-highlight' }">
             <template #actions>
                 <button @click="showModal = true">+ Add Book</button>
             </template>
@@ -17,6 +17,7 @@
                 <button class="ml-0_5em" @click="cloneBook(item)" style="display: inline-flex; vertical-align: bottom;">
                     <CopyIcon />
                 </button>
+                <button class="ml-0_5em add-list" v-if="!item.user_status" @click="startAddToList(item)">+ My List</button>
             </template>
         </DataTable>
         <GridView v-else route="/json/manage-books" :bus="bus">
@@ -30,6 +31,7 @@
                 <button class="ml-0_5em" @click="cloneBook(item)" style="display: inline-flex; vertical-align: bottom;">
                     <CopyIcon />
                 </button>
+                <button class="ml-0_5em add-list" v-if="!item.user_status" @click="startAddToList(item)">+ My List</button>
             </template>
         </GridView>
         <Modal v-model:showModal="showModal">
@@ -142,6 +144,26 @@
                 </div>
             </form>
         </Modal>
+
+        <!-- Add to My List Modal -->
+        <Modal v-model:showModal="showAddToListModal">
+            <template #title>Add to My List</template>
+            <form @submit.prevent="addToList">
+                <div>
+                    <label>{{ addToListBook.display_name }}<br>
+                        <select v-model="addToListStatus" class="w-100p" required>
+                            <option value="TO_READ">To Read</option>
+                            <option value="CURRENTLY_READING">Currently Reading</option>
+                            <option value="READ">Read</option>
+                            <option value="ABANDONED">Abandoned</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="mt-1em">
+                    <button type="submit">Add</button>
+                </div>
+            </form>
+        </Modal>
     </ManageContainer>
 </template>
 
@@ -169,18 +191,10 @@ export default {
     data() {
         return {
             fields: [
-                {
-                    fieldName: 'Book',
-                    field: 'display_name'
-                },
-                {
-                    fieldName: 'Author',
-                    field: 'author'
-                },
-                {
-                    fieldName: 'Type',
-                    field: 'book_type'
-                }
+                { fieldName: 'Book', field: 'display_name', width: '30%' },
+                { fieldName: 'Author', field: 'author', width: '28%' },
+                { fieldName: 'Type', field: 'book_type', width: '12%' },
+                { fieldName: 'Your Status', field: 'user_status', width: '12%' }
             ],
             bus: mitt(),
             viewModeOptions: [
@@ -197,7 +211,23 @@ export default {
             selectSeries: [],
             showAddAuthorModal: false,
             newAuthor: {},
-            currentAuthorIndex: null
+            currentAuthorIndex: null,
+            statusBadgeMutations: {
+                user_status: (val) => {
+                    const map = {
+                        'TO_READ':           ['to-read',           'To Read'],
+                        'CURRENTLY_READING': ['currently-reading', 'Currently Reading'],
+                        'READ':              ['read',              'Read'],
+                        'ABANDONED':         ['abandoned',         'Abandoned']
+                    }
+                    if (!val || !map[val]) return '<span class="status-badge status-none">—</span>'
+                    const [cls, label] = map[val]
+                    return `<span class="status-badge status-${cls}">${label}</span>`
+                }
+            },
+            showAddToListModal: false,
+            addToListBook: {},
+            addToListStatus: 'TO_READ'
         }
     },
     computed: {
@@ -227,6 +257,12 @@ export default {
             if(!this.showAddAuthorModal) {
                 this.newAuthor = {}
                 this.currentAuthorIndex = null
+            }
+        },
+        showAddToListModal() {
+            if(!this.showAddToListModal) {
+                this.addToListBook = {}
+                this.addToListStatus = 'TO_READ'
             }
         },
         viewMode() {
@@ -391,7 +427,26 @@ export default {
                 loader.hide()
                 this.$snotify.error('Failed to clone book')
             })
-        }
+        },
+        startAddToList(item) {
+            this.addToListBook = item
+            this.addToListStatus = 'TO_READ'
+            this.showAddToListModal = true
+        },
+        addToList() {
+            let loader = this.$loading.show()
+            axios.post(`/json/books/${this.addToListBook.id}/add-to-list`, {
+                status: this.addToListStatus
+            }).then(() => {
+                this.bus.emit('refreshDataTable')
+                this.showAddToListModal = false
+                loader.hide()
+                this.$snotify.success('Added to My List')
+            }).catch(() => {
+                loader.hide()
+                this.$snotify.error('Failed to add to list')
+            })
+        },
     },
     created() {
         this.fetchBookTypes()
@@ -403,3 +458,13 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+:deep(.datatable table) {
+    table-layout: fixed;
+}
+
+:deep(.col-status-highlight) {
+    background: #fffde7;
+}
+</style>

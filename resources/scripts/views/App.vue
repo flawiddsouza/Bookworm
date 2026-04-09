@@ -21,7 +21,7 @@
 
                 <div class="navbar-menu" :class="{ 'navbar-menu-active': showNavbar }">
                     <router-link to="/" class="ml-1em" active-class="td-n">Home</router-link>
-                    <router-link to="/manage/books" class="ml-1em" active-class="td-n">Manage Books</router-link>
+                    <router-link to="/manage/books" class="ml-1em" active-class="td-n">Books</router-link>
                     <router-link to="/import" class="ml-1em" active-class="td-n">Import</router-link>
                 </div>
 

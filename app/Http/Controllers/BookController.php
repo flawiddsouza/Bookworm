@@ -156,4 +156,16 @@ class BookController extends Controller
             return response($e->getMessage(), 500);
         }
     }
+
+    public function addToList(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:TO_READ,CURRENTLY_READING,READ,ABANDONED',
+        ]);
+
+        UserBook::updateOrCreate(
+            ['user_id' => Auth::id(), 'book_id' => $id],
+            ['status' => $request->status]
+        );
+    }
 }

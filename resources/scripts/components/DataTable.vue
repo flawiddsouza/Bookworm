@@ -10,24 +10,20 @@
             </div>
         </div>
         <br>
-        <div class="w-100p o-h">
-            <table ref="tableHead">
+        <div class="table-container" :style="{ height: tableHeight }">
+            <table ref="tableBody">
                 <thead>
                     <tr>
                         <th v-if="checkboxes" style="width: 45px; min-width: 45px">
                             <input type="checkbox" v-if="items.length > 0" @change="selectAllCheckboxes" ref="selectAllCheckboxesInput">
                         </th>
-                        <th v-if="itemActionsSlotExists" :style="{ width: itemActionsWidth, minWidth: itemActionsWidth }">Actions</th>
-                        <th v-for="field in fields" :class="{ active: sortField === field.field }" :style="{ width: field.width ?? false }" @click="sortColumn(field.field)">
+                        <th v-for="field in fields" :class="[{ active: sortField === field.field }, fieldClass ? fieldClass[field.field] : null]" :style="{ width: field.width ?? false }" @click="sortColumn(field.field)">
                             {{ field.fieldName }}
                             <span class="arrow" :class="sortOrder === 'asc' ? 'asc' : 'desc'"></span>
                         </th>
+                        <th v-if="itemActionsSlotExists" :style="{ width: itemActionsWidth, minWidth: itemActionsWidth }">Actions</th>
                     </tr>
                 </thead>
-            </table>
-        </div>
-        <div class="table-container" :style="{ height: tableHeight }" @scroll="scrollTables">
-            <table ref="tableBody">
                 <tbody>
                     <tr v-if="!route || loading">
                         <td colspan="100%" class="ta-c">Loading</td>
@@ -37,34 +33,31 @@
                             <td class="ta-c" v-if="checkboxes" style="width: 45px; min-width: 45px">
                                 <input type="checkbox" :value="item[checkboxField]" v-model="selectedCheckboxesVirtual">
                             </td>
-                            <td class="ta-c" v-if="itemActionsSlotExists && index === 0" :style="{ width: itemActionsWidth, minWidth: itemActionsWidth }">
-                                <slot name="item-actions" :item="item"></slot>
-                            </td>
-                            <td class="ta-c" v-if="itemActionsSlotExists && index !== 0">
-                                <slot name="item-actions" :item="item"></slot>
-                            </td>
                             <template v-for="field in fields">
                                 <template v-if="fieldMutations && fieldMutations[field.field]">
-                                    <td :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }">{{ fieldMutations[field.field](item[field.field]) }}</td>
+                                    <td :class="fieldClass ? fieldClass[field.field] : null" :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }">{{ fieldMutations[field.field](item[field.field]) }}</td>
+                                </template>
+                                <template v-else-if="fieldHtmlMutations && fieldHtmlMutations[field.field]">
+                                    <td :class="fieldClass ? fieldClass[field.field] : null" :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }" v-html="fieldHtmlMutations[field.field](item[field.field])"></td>
                                 </template>
                                 <template v-else>
                                     <template v-if="fieldImage && fieldImage[field.field]">
-                                        <td v-if="item[field.field]" :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }">
+                                        <td v-if="item[field.field]" :class="fieldClass ? fieldClass[field.field] : null" :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }">
                                             <img :style="{ width: fieldImage[field.field].width }" :src="fieldImage[field.field].path + '/' + item[field.field]">
                                         </td>
-                                        <td v-else></td>
+                                        <td v-else :class="fieldClass ? fieldClass[field.field] : null"></td>
                                     </template>
                                     <template v-else>
-                                        <td v-if="fieldSubtitutions && fieldSubtitutions[field.field]" :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }">{{ fieldSubtitutions[field.field][item[field.field]] }}</td>
+                                        <td v-if="fieldSubtitutions && fieldSubtitutions[field.field]" :class="fieldClass ? fieldClass[field.field] : null" :style="{ textAlign: fieldAlign ? fieldAlign[field.field] : false }">{{ fieldSubtitutions[field.field][item[field.field]] }}</td>
                                         <template v-else>
-                                            <td v-if="fieldHtml && fieldHtml.includes(field.field)" :style="{
+                                            <td v-if="fieldHtml && fieldHtml.includes(field.field)" :class="fieldClass ? fieldClass[field.field] : null" :style="{
                                                 textAlign: fieldAlign ? fieldAlign[field.field] : false,
                                                 width: field.width ?? false,
                                                 maxWidth: field.width ?? false,
                                                 minWidth: field.width ?? false,
                                                 whiteSpace: field.whiteSpace ?? false
                                             }" v-html="item[field.field]"></td>
-                                            <td v-else :style="{
+                                            <td v-else :class="fieldClass ? fieldClass[field.field] : null" :style="{
                                                 textAlign: fieldAlign ? fieldAlign[field.field] : false,
                                                 width: field.width ?? false,
                                                 maxWidth: field.width ?? false,
@@ -75,6 +68,12 @@
                                     </template>
                                 </template>
                             </template>
+                            <td class="ta-c actions-cell" v-if="itemActionsSlotExists && index === 0" :style="{ width: itemActionsWidth, minWidth: itemActionsWidth }">
+                                <slot name="item-actions" :item="item"></slot>
+                            </td>
+                            <td class="ta-c actions-cell" v-if="itemActionsSlotExists && index !== 0">
+                                <slot name="item-actions" :item="item"></slot>
+                            </td>
                         </tr>
                         <tr v-if="items.length === 0">
                             <td colspan="100%" class="ta-c">No records found</td>
@@ -126,20 +125,6 @@ function debounce(func, wait, immediate) {
     }
 }
 
-function textWidth(text) {
-    var tag = document.createElement('div')
-    tag.style.position = 'absolute'
-    tag.style.left = '-99in'
-    tag.style.whiteSpace = 'nowrap'
-    tag.style.fontSize = '13px'
-    tag.innerHTML = text
-    document.body.appendChild(tag)
-    var result = tag.clientWidth + 25
-    document.body.removeChild(tag)
-    return result
-}
-
-import { nextTick } from 'vue'
 
 export default {
     props: {
@@ -152,6 +137,8 @@ export default {
         fieldImage: Object,
         fieldAlign: Object,
         fieldMutations: Object,
+        fieldHtmlMutations: Object,
+        fieldClass: Object,
         fieldHtml: Array,
         limit: Number,
         checkboxes: Boolean,
@@ -190,44 +177,6 @@ export default {
                 this.previousSortField = ''
                 this.sortOrder = 'asc'
                 this.fetchItemsForPage(1, true, true)
-            }
-        },
-        items() {
-            if(this.items.length > 0) {
-                nextTick(() => {
-                    if(Object.keys(this.$refs).length === 0) {
-                        return
-                    }
-                    this.$refs.tableHead.style.width = ''
-                    this.$refs.tableBody.style.width = ''
-                    var extraWidth = 0
-                    let tdQuery = 'tr:nth-child(1) td'
-                    let thQuery = 'tr:nth-child(1) th'
-                    if(this.checkboxes) {
-                        tdQuery = 'tr:nth-child(1) td:not(:first-child)'
-                        thQuery = 'tr:nth-child(1) th:not(:first-child)'
-                    }
-                    Array.from(this.$refs.tableBody.querySelectorAll(tdQuery)).forEach((td, tdIndex) => {
-                        if(tdIndex > 0 && td.style.width) {
-                            return
-                        }
-                        var width = td.offsetWidth
-                        var element = Array.from(this.$refs.tableHead.querySelectorAll(thQuery))[tdIndex]
-                        var elementTextWidth = textWidth(element.innerText.trim())
-                        if(width > elementTextWidth) {
-                            element.style.width = width + 'px'
-                            element.style.maxWidth = width + 'px'
-                            td.style.width = width + 'px'
-                        } else {
-                            extraWidth += elementTextWidth - width
-                            element.style.width = elementTextWidth + 'px'
-                            element.style.maxWidth = elementTextWidth + 'px'
-                            td.style.width = elementTextWidth + 'px'
-                        }
-                    })
-                    this.$refs.tableHead.style.width = (this.$refs.tableBody.offsetWidth + extraWidth) + 'px'
-                    this.$refs.tableBody.style.width = (this.$refs.tableBody.offsetWidth + extraWidth) + 'px'
-                })
             }
         },
         selectedCheckboxesVirtual() {
@@ -370,9 +319,6 @@ export default {
                 this.$emit('loaded')
             })
         },
-        scrollTables() {
-            this.$refs.tableHead.parentElement.scrollLeft = this.$refs.tableBody.parentElement.scrollLeft
-        },
         refreshDataTable() {
             this.refreshingDataTable = true
             this.fetchItemsForPage(this.paginator.currentPage, false, true)
@@ -408,25 +354,39 @@ export default {
 }
 
 .datatable .table-container {
-    height: calc(100vh - 23em);
+    max-height: calc(100vh - 23em);
     overflow-x: auto;
     overflow-y: auto;
-    margin-right: -15.2px;
+    border-bottom: 1px solid lightgrey;
 }
 
 .datatable table {
     width: 100%;
-    border-collapse: collapse;
+    border-collapse: separate;
+    border-spacing: 0;
+    border-left: 1px solid lightgrey;
 }
 
 .datatable table th,
 .datatable table td {
-    white-space: nowrap;
     overflow: hidden;
+    border-right: 1px solid lightgrey;
+    border-bottom: 1px solid lightgrey;
 }
 
-.datatable tbody tr:first-child td {
-    border-top: 0 !important;
+.datatable table th {
+    white-space: nowrap;
+}
+
+.datatable table td.actions-cell {
+    white-space: nowrap;
+}
+
+.datatable table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    border-top: 1px solid lightgrey;
 }
 
 .datatable button {
@@ -458,8 +418,23 @@ export default {
     border-top: 4px solid black;
 }
 
-.datatable .paginator button:not(.active) {
+.datatable .paginator button:not(.active):not(:disabled) {
+    background: white;
+    border-color: #aaa;
+    color: #333;
     outline: 0;
+}
+
+.datatable .paginator button.active {
+    background: #f7c00ce0;
+    border: 2px solid #000;
+    font-weight: 700;
+}
+
+.datatable .paginator button:disabled {
+    background: #f0f0f0 !important;
+    border-color: #ddd !important;
+    color: #bbb !important;
 }
 
 .datatable input[type="search"] {
@@ -472,15 +447,50 @@ export default {
     outline: 0;
 }
 
-.datatable > .w-100p > table th,
+.datatable > .table-container > table th,
 .datatable > .table-container > table td {
-    border: 1px solid #a79e9e !important;
-    padding: 5px;
+    padding: 8px 10px;
     color: #272727;
 }
 
-.datatable > .w-100p > table th {
-    text-align: center;
+.datatable > .table-container > table th {
+    text-align: left;
+    background: #fafafa;
+    font-weight: 600;
+}
+
+.datatable > .table-container > table tbody tr:hover td {
+    background: #fffbf0;
+}
+
+.datatable > .table-container > table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Ghost style for row-action buttons inside tbody.
+   Must use :deep() because buttons come from parent slot content,
+   which carries the parent component's scope attribute, not DataTable's. */
+.datatable :deep(tbody button) {
+    background: white;
+    border: 1px solid #aaa;
+    color: #333;
+    min-width: unset;
+}
+
+.datatable :deep(tbody button:hover) {
+    background: #f5f5f5;
+    border-color: #888;
+}
+
+/* Keep add-list button green even inside tbody */
+.datatable :deep(tbody button.add-list) {
+    background: #e8f5e9;
+    border-color: #66bb6a;
+    color: #2e7d32;
+}
+
+.datatable :deep(tbody button.add-list:hover) {
+    background: #c8e6c9;
 }
 
 .paginator button {

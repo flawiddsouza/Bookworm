@@ -3,11 +3,13 @@
 namespace App\Http\Controllers;
 
 use App\Classes\Formatter;
+use App\Models\Author;
 use App\Models\Book;
 use App\Classes\Paginator;
 use App\Models\BookAuthor;
 use App\Models\BookSeries;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
 class ManageBooksController extends Controller
@@ -41,8 +43,9 @@ class ManageBooksController extends Controller
                     ),
                     ', '
                     ORDER BY book_authors.id
-                ) as author
-            ")
+                ) as author,
+                (SELECT status FROM user_books WHERE user_books.book_id = books.id AND user_books.user_id = ?) as user_status
+            ", [Auth::id()])
             ->join('book_types', 'book_types.id', 'books.book_type_id')
             ->leftJoin('book_authors', 'book_authors.book_id', 'books.id')
             ->leftJoin('authors', 'authors.id', 'book_authors.author_id')
@@ -129,11 +132,22 @@ class ManageBooksController extends Controller
             ])->id;
 
             foreach($request->authors as $author) {
-                BookAuthor::create([
-                    'book_id' => $bookId,
-                    'author_id' => $author['author_id'],
-                    'role' => $author['role'] ?? null
-                ]);
+                $authorId = $author['author_id'] ?? null;
+
+                if (!$authorId && !empty($author['author_name'])) {
+                    $authorId = Author::firstOrCreate(
+                        ['name' => $author['author_name']],
+                        ['created_by' => Auth::id(), 'updated_by' => Auth::id()]
+                    )->id;
+                }
+
+                if ($authorId) {
+                    BookAuthor::create([
+                        'book_id' => $bookId,
+                        'author_id' => $authorId,
+                        'role' => $author['role'] ?? null
+                    ]);
+                }
             }
 
             if(isset($request->series) && count($request->series) > 0) {
@@ -147,6 +161,9 @@ class ManageBooksController extends Controller
             }
 
             DB::commit();
+
+            return response()->json(['id' => $bookId]);
+
         } catch(\Throwable $e) {
             DB::rollBack();
 

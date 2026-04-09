@@ -67,3 +67,18 @@ table.table :is(th, td)  {
     border-color: #007bff;
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
 }
+
+.status-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-to-read           { background: #e3f2fd; color: #1565c0; }
+.status-currently-reading { background: #e8f5e9; color: #2e7d32; }
+.status-read              { background: #f3e5f5; color: #6a1b9a; }
+.status-abandoned         { background: #fce4ec; color: #b71c1c; }
+.status-none              { background: #f0f0f0; color: #888; }

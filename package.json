@@ -2,13 +2,15 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "dev": "vite",
+        "dev": "concurrently -n docker,vite -c blue,green \"docker-compose up\" \"vite\"",
+        "dev:vite": "vite",
         "build": "vite build",
         "serve": "vite preview"
     },
     "devDependencies": {
         "@vitejs/plugin-vue": "^5.2.1",
         "@vue/compiler-sfc": "^3.5.13",
+        "concurrently": "^9.2.1",
         "laravel-vite-plugin": "^1.1.1",
         "vite": "^6.0.5"
     },
