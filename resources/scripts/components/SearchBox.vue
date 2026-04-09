@@ -37,6 +37,7 @@ export default {
             }
         }
     },
+    emits: ['select'],
     methods: {
         selectResult(result) {
             this.$emit('select', result.id)
