@@ -3,17 +3,16 @@
 @section('content')
 <form method="POST">
     @csrf
-    <div>
-        <label>Email<br>
-            <input type="text" name="email" required autofocus>
-        </label>
+    <div class="form-group">
+        <label>Email</label>
+        <input type="text" name="email" required autofocus>
     </div>
 
-    <div class="mt-1em">
+    <div class="mb-1em">
         <button>Send Mail to Reset Password</button>
     </div>
 
-    <div class="mt-1em">
+    <div>
         <a href="{{ route('login') }}">{{ __('Go back to login? Click here.') }}</a>
     </div>
 </form>

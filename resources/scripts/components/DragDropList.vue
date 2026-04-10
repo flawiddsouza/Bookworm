@@ -189,7 +189,7 @@ export default {
     box-shadow: 0 8px 16px rgba(0,0,0,0.2);
     z-index: 1000;
     background: #fff;
-    border-color: #f7c00c;
+    border-color: var(--color-primary);
 }
 
 .drag-drop-item.drop-line-above::before {
@@ -199,7 +199,7 @@ export default {
     left: 0;
     right: 0;
     height: 3px;
-    background: #f7c00c;
+    background: var(--color-primary);
     border-radius: 2px;
     box-shadow: 0 0 4px rgba(247, 192, 12, 0.5);
     z-index: 10;
@@ -212,7 +212,7 @@ export default {
     left: 0;
     right: 0;
     height: 3px;
-    background: #f7c00c;
+    background: var(--color-primary);
     border-radius: 2px;
     box-shadow: 0 0 4px rgba(247, 192, 12, 0.5);
     z-index: 10;

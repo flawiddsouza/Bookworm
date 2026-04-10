@@ -43,45 +43,39 @@
         <Modal v-model:showModal="showModal">
             <template #title>{{ book.book }} by {{ book.author }}</template>
             <form @submit.prevent="updateBook">
-                <div>
-                    <label>Status<br>
-                        <select v-model="book.status" class="w-100p" required>
-                            <option value="TO_READ">To Read</option>
-                            <option value="CURRENTLY_READING">Currently Reading</option>
-                            <option value="READ">Read</option>
-                            <option value="ABANDONED">Abandoned</option>
-                        </select>
-                    </label>
+                <div class="form-group">
+                    <label>Status</label>
+                    <select v-model="book.status" required>
+                        <option value="TO_READ">To Read</option>
+                        <option value="CURRENTLY_READING">Currently Reading</option>
+                        <option value="READ">Read</option>
+                        <option value="ABANDONED">Abandoned</option>
+                    </select>
                 </div>
-                <div class="mt-1em">
-                    <label>Started Reading<br>
-                        <input type="date" v-model="book.started_reading" class="w-100p">
-                    </label>
+                <div class="form-group">
+                    <label>Started Reading</label>
+                    <input type="date" v-model="book.started_reading">
                 </div>
-                <div class="mt-1em">
-                    <label>Completed Reading<br>
-                        <input type="date" v-model="book.completed_reading" class="w-100p">
-                    </label>
+                <div class="form-group">
+                    <label>Completed Reading</label>
+                    <input type="date" v-model="book.completed_reading">
                 </div>
-                <div class="mt-1em">
-                    <label>Rating<br>
-                        <select v-model="book.rating" class="w-100p">
-                            <option v-for="rating in ratings" :value="rating.rating">{{ rating.description }}</option>
-                        </select>
-                    </label>
+                <div class="form-group">
+                    <label>Rating</label>
+                    <select v-model="book.rating">
+                        <option v-for="rating in ratings" :value="rating.rating">{{ rating.description }}</option>
+                    </select>
                 </div>
-                <div class="mt-1em">
-                    <label>Notes</label><br>
+                <div class="form-group">
+                    <label>Notes</label>
                     <PlainNotes v-if="book.notes_type !== 2" v-model="book.notes" />
                     <DateMarkedNotes v-else v-model="book.notes" />
                 </div>
-                <div class="mt-1em">
-                    <label>Reading Medium<br>
-                        <input type="text" v-model="book.reading_medium" class="w-100p">
-                    </label>
+                <div class="form-group">
+                    <label>Reading Medium</label>
+                    <input type="text" v-model="book.reading_medium">
                 </div>
-                <div class="mt-1em"></div>
-                <button class="mt-1em">Save</button>
+                <button>Save</button>
             </form>
         </Modal>
         <AddBookModal v-model="showAddBookModal" @book-added="onBookAdded" />

@@ -415,11 +415,13 @@ export default {
 
 .gridview input[type="search"] {
     padding: 5.6px 10px;
-    border: 1px solid darkgrey;
+    border: 1px solid var(--color-border);
     border-radius: 3px;
 }
 
 .gridview input[type="search"]:focus {
-    outline: 0;
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-focus);
 }
 </style>

@@ -2,7 +2,7 @@
     <div class="search-box">
         <input type="search" v-model="search" :placeholder="placeholder" onkeyup="this.setAttribute('value', this.value)" onsearch="this.setAttribute('value', this.value)">
         <div v-if="search.length > 0">
-            <div v-if="status">{{ status }}</div>
+            <div v-if="status" class="search-status">{{ status }}</div>
             <div v-for="result in results" class="search-result" :key="result.id" @click="selectResult(result)">
                 <slot :result="result">
                     {{ result }}
@@ -64,16 +64,40 @@ export default {
     position: relative;
 }
 
+.search-box > input {
+    width: 30em;
+    padding: 5px 10px;
+    border: 1px solid #d0d0d0;
+    border-radius: 3px;
+    font-family: inherit;
+    font-size: 14px;
+    transition: border-color 0.15s, border-radius 0.15s;
+}
+
+.search-box > input:focus {
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-focus);
+}
+
+/* Flatten bottom corners when dropdown is visible */
+.search-box > input:focus:not([value=""]) {
+    border-radius: 3px 3px 0 0;
+    border-bottom-color: var(--color-primary);
+    box-shadow: none;
+}
+
 .search-box > div {
     display: none;
     position: absolute;
-    top: 25px;
+    top: 100%;
     background-color: white;
     width: 100%;
-    padding: 0.5em;
-    border-left: 1px solid lightgrey;
-    border-right: 1px solid lightgrey;
-    border-bottom: 1px solid lightgrey;
+    padding: 0.3em 0;
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0 0 3px 3px;
     max-height: 15em;
     z-index: 3;
     overflow-y: auto;
@@ -84,24 +108,25 @@ export default {
     display: block;
 }
 
+.search-status {
+    padding: 0.35em 0.6em;
+    color: var(--color-text-muted);
+}
+
 .search-box > div .search-result {
-    padding: 0.3em 0.5em;
+    padding: 0.35em 0.6em;
     cursor: pointer;
     text-decoration: none;
     display: block;
-    color: black;
+    color: var(--color-text);
 }
 
 .search-box > div .search-result:hover {
-    background-color: antiquewhite;
+    background-color: #fffbf0;
 }
 
 .search-box > input:focus:not([value=""]) ~ div {
     display: block;
-}
-
-.search-box > input {
-    width: 30em;
 }
 
 /* Mobile responsive styles */

@@ -13,6 +13,7 @@ export default defineConfig({
         vue(),
         laravel([
             'resources/scripts/main.js',
+            'resources/css/app.css',
         ]),
     ],
 })

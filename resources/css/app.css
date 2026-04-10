@@ -3,9 +3,19 @@
 @import "./components.css";
 
 :root {
-    --border-color: lightgrey;
+    --color-primary: #f7c00c;
+    --color-primary-hover: #e5b00b;
+    --color-primary-focus: rgba(247, 192, 12, 0.22);
+    --color-border: #e2e2e2;
+    --color-bg-subtle: #fafafa;
+    --color-text: #1a1a1a;
+    --color-text-muted: #666;
+
+    /* keep old name for any external references */
+    --border-color: var(--color-border);
 }
 
 body {
     font-family: Avenir, Helvetica, Arial, sans-serif;
+    color: var(--color-text);
 }

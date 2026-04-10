@@ -357,21 +357,21 @@ export default {
     max-height: calc(100vh - 23em);
     overflow-x: auto;
     overflow-y: auto;
-    border-bottom: 1px solid lightgrey;
+    border-bottom: 1px solid var(--color-border);
 }
 
 .datatable table {
     width: 100%;
     border-collapse: separate;
     border-spacing: 0;
-    border-left: 1px solid lightgrey;
+    border-left: 1px solid var(--color-border);
 }
 
 .datatable table th,
 .datatable table td {
     overflow: hidden;
-    border-right: 1px solid lightgrey;
-    border-bottom: 1px solid lightgrey;
+    border-right: 1px solid var(--color-border);
+    border-bottom: 1px solid var(--color-border);
 }
 
 .datatable table th {
@@ -386,7 +386,7 @@ export default {
     position: sticky;
     top: 0;
     z-index: 2;
-    border-top: 1px solid lightgrey;
+    border-top: 1px solid var(--color-border);
 }
 
 .datatable button {
@@ -426,7 +426,7 @@ export default {
 }
 
 .datatable .paginator button.active {
-    background: #f7c00ce0;
+    background: var(--color-primary);
     border: 2px solid #000;
     font-weight: 700;
 }
@@ -439,12 +439,14 @@ export default {
 
 .datatable input[type="search"] {
     padding: 5.6px 10px;
-    border: 1px solid darkgrey;
+    border: 1px solid var(--color-border);
     border-radius: 3px;
 }
 
 .datatable input[type="search"]:focus {
-    outline: 0;
+    outline: none;
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-focus);
 }
 
 .datatable > .table-container > table th,

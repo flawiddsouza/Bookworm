@@ -3,27 +3,24 @@
 @section('content')
 <form method="POST" action="{{ route('password.update') }}">
     @csrf
-    <div>
-        <label>Email<br>
-            <input type="text" name="email" required autofocus>
-        </label>
+    <div class="form-group">
+        <label>Email</label>
+        <input type="text" name="email" required autofocus>
     </div>
 
-    <div class="mt-1em">
-        <label>Password<br>
-            <input type="password" name="password" required>
-        </label>
+    <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required>
     </div>
 
-    <div class="mt-1em">
-        <label>Confirm Password<br>
-            <input type="password" name="password_confirmation" required>
-        </label>
+    <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" name="password_confirmation" required>
     </div>
 
     <input type="hidden" name="token" value="{{ request()->route('token') }}">
 
-    <div class="mt-1em">
+    <div class="mb-1em">
         <button>Reset Password</button>
     </div>
 </form>

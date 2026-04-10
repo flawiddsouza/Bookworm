@@ -56,7 +56,7 @@ export default {
 
 .modal-header {
     padding: 1em 1.2em;
-    border-bottom: 1px solid lightgrey;
+    border-bottom: 1px solid var(--color-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -87,7 +87,7 @@ export default {
 
 .modal-footer {
     padding: 1em 1.2em;
-    border-top: 1px solid lightgrey;
+    border-top: 1px solid var(--color-border);
     display: flex;
     justify-content: flex-end;
     gap: 0.5em;

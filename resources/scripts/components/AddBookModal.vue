@@ -296,7 +296,7 @@ export default {
 
 .modal-header {
     padding: 1em 1.2em;
-    border-bottom: 1px solid lightgrey;
+    border-bottom: 1px solid var(--color-border);
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -324,7 +324,7 @@ export default {
 
 .modal-footer {
     padding: 1em 1.2em;
-    border-top: 1px solid lightgrey;
+    border-top: 1px solid var(--color-border);
     display: flex;
     justify-content: flex-end;
     gap: 0.5em;
@@ -352,8 +352,8 @@ select {
 input:focus,
 select:focus {
     outline: none;
-    border-color: #f7c00c;
-    box-shadow: 0 0 0 2px rgba(247, 192, 12, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-focus);
 }
 
 .form-group {
@@ -370,7 +370,7 @@ select:focus {
 /* Search input when results are showing */
 input.has-results {
     border-radius: 3px 3px 0 0;
-    border-bottom-color: #f7c00c;
+    border-bottom-color: var(--color-primary);
 }
 
 .search-results {

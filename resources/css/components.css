@@ -1,61 +1,85 @@
-.tabs > div {
-    border: 1px solid black;
-    padding: 0.5em;
-    display: inline-block;
-    user-select: none;
-    cursor: pointer;
+/* ── Tabs ─────────────────────────────────────────────────────── */
+
+.tabs {
+    display: inline-flex;
+    border-bottom: 2px solid var(--color-border);
 }
 
-.tabs > div:not(:last-child) {
-    border-right: 0;
+.tabs > div {
+    padding: 0.45em 0.85em;
+    font-size: 13px;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    user-select: none;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+    transition: color 0.15s;
+    white-space: nowrap;
+}
+
+.tabs > div:hover {
+    color: var(--color-text);
 }
 
 .tabs > div.tab-active {
-    background-color: #f7c00ce0;
+    border-bottom-color: var(--color-primary);
+    color: var(--color-text);
+    font-weight: 600;
 }
 
+/* ── Buttons ──────────────────────────────────────────────────── */
+
 button {
-    padding: 5px 10px;
-    border: 1px solid black;
-    border-radius: 3px;
-    background:  #f7c00ce0;
-    color: black;
+    padding: 5px 12px;
+    border: 1px solid rgba(0, 0, 0, 0.18);
+    border-radius: 4px;
+    background: var(--color-primary);
+    color: var(--color-text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
     cursor: pointer;
+    transition: background 0.12s;
 }
 
 button:hover {
-    opacity: 0.9;
+    background: var(--color-primary-hover);
 }
 
 button:active {
-    opacity: 0.8;
+    opacity: 0.85;
 }
 
 button.active {
-    border: 2px solid #000000;
+    border: 2px solid #000;
+    font-weight: 700;
 }
 
 button:disabled {
-    background-color: #c7c7c7 !important;
+    background: #e0e0e0 !important;
+    border-color: #d0d0d0 !important;
+    color: #aaa !important;
     background-image: none;
     cursor: not-allowed;
-    color: #676767;
-    border-color: #c7c7c7;
 }
+
+/* ── Table ────────────────────────────────────────────────────── */
 
 table.table {
     border-collapse: collapse;
     width: 100%;
 }
 
-table.table :is(th, td)  {
-    border: 1px solid var(--border-color);
+table.table :is(th, td) {
+    border: 1px solid var(--color-border);
 }
+
+/* ── Select (tab-select) ──────────────────────────────────────── */
 
 .tab-select {
     min-width: 120px;
     padding: 0.5rem;
-    border: 1px solid #ccc;
+    border: 1px solid var(--color-border);
     border-radius: 4px;
     background: white;
     font-size: inherit;
@@ -64,9 +88,11 @@ table.table :is(th, td)  {
 
 .tab-select:focus {
     outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-focus);
 }
+
+/* ── Status badges ────────────────────────────────────────────── */
 
 .status-badge {
     display: inline-block;
@@ -83,7 +109,7 @@ table.table :is(th, td)  {
 .status-abandoned         { background: #fce4ec; color: #b71c1c; }
 .status-none              { background: #f0f0f0; color: #888; }
 
-/* ── Form inputs (scoped to .form-group to avoid affecting tabs, filters, etc.) ── */
+/* ── Form inputs (scoped to .form-group) ─────────────────────── */
 
 .form-group label {
     display: block;
@@ -97,8 +123,8 @@ table.table :is(th, td)  {
 .form-group select:not(.b-0) {
     width: 100%;
     padding: 7px 10px;
-    border: 1px solid #ccc;
-    border-radius: 3px;
+    border: 1px solid #d0d0d0;
+    border-radius: 4px;
     font-size: 13px;
     font-family: inherit;
     box-sizing: border-box;
@@ -107,8 +133,8 @@ table.table :is(th, td)  {
 .form-group input:not([type="checkbox"]):not([type="radio"]):not(.b-0):focus,
 .form-group select:not(.b-0):focus {
     outline: none;
-    border-color: #f7c00c;
-    box-shadow: 0 0 0 2px rgba(247, 192, 12, 0.2);
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-focus);
 }
 
 /* Suppress glow on borderless table inputs */
@@ -120,8 +146,14 @@ input.b-0:focus {
     margin-bottom: 1em;
 }
 
+/* ── Secondary button ─────────────────────────────────────────── */
+
 button.secondary {
     background: white;
-    border-color: #aaa;
-    color: #555;
+    border-color: #c8c8c8;
+    color: #444;
+}
+
+button.secondary:hover {
+    background: var(--color-bg-subtle);
 }
