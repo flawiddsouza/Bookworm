@@ -332,7 +332,7 @@ export default {
 
 label {
     display: block;
-    font-size: 13px;
+    font-size: var(--font-size-base);
     font-weight: 600;
     margin-bottom: 4px;
     color: #333;
@@ -344,7 +344,7 @@ select {
     padding: 7px 10px;
     border: 1px solid #ccc;
     border-radius: 3px;
-    font-size: 13px;
+    font-size: var(--font-size-base);
     font-family: inherit;
     box-sizing: border-box;
 }
@@ -405,11 +405,11 @@ input.has-results {
 
 .result-title {
     font-weight: 600;
-    font-size: 13px;
+    font-size: var(--font-size-base);
 }
 
 .result-author {
-    font-size: 11px;
+    font-size: var(--font-size-sm);
     color: #777;
 }
 
@@ -428,14 +428,14 @@ input.has-results {
 .quick-add-select {
     width: auto;
     padding: 2px 4px;
-    font-size: 11px;
+    font-size: var(--font-size-sm);
     border: 1px solid #ccc;
     border-radius: 3px;
 }
 
 .quick-add-btn {
     padding: 2px 8px;
-    font-size: 11px;
+    font-size: var(--font-size-sm);
     margin-left: 4px;
 }
 .badge-to-read   { background: #e3f2fd; color: #1565c0; }

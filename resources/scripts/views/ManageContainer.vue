@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="d-f flex-jc-sb flex-ai-c mb-1em">
+        <div class="d-f flex-jc-sb flex-ai-c mb-1em manage-header">
             <div class="tabs">
                 <router-link :to="`/manage/${link.slug}`" custom v-slot="{ navigate, isActive }" v-for="link in links">
                     <div :class="{ 'tab-active': isActive }" @click="navigate">{{ link.label }}</div>
@@ -38,3 +38,20 @@ export default {
     }
 }
 </script>
+
+<style scoped>
+@media (max-width: 768px) {
+    .manage-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.5em;
+    }
+
+    .manage-header > .tabs {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        overflow-x: visible;
+    }
+}
+</style>

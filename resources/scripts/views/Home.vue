@@ -1,6 +1,6 @@
 <template>
     <div>
-        <div class="d-f flex-jc-sb flex-ai-c mb-1em">
+        <div class="d-f flex-jc-sb flex-ai-c mb-1em home-toolbar">
             <div>
                 <Tabs
                     :tabs="tabs"
@@ -292,9 +292,44 @@ export default {
         }
         if(viewMode) {
             this.viewMode = viewMode
+        } else if (window.innerWidth <= 768) {
+            this.viewMode = 'grid'
         }
 
         this.fetchBookTypes()
     }
 }
 </script>
+
+<style scoped>
+@media (max-width: 768px) {
+    .home-toolbar {
+        flex-wrap: wrap;
+        gap: 0.5em;
+    }
+
+    /* Filter row (status + book type selects) */
+    .home-toolbar > div:first-child {
+        display: flex;
+        width: 100%;
+        gap: 0.5em;
+    }
+
+    /* Make each select fill half the row */
+    .home-toolbar > div:first-child :deep(.tab-select) {
+        flex: 1;
+        min-width: 0;
+        margin-left: 0;
+    }
+
+    /* Actions row (Add Book button + view-mode select) — already flex from template */
+    .home-toolbar > div:last-child {
+        width: 100%;
+    }
+
+    /* Add Book button fills remaining space, view-mode select stays natural width */
+    .home-toolbar > div:last-child > button {
+        flex: 1;
+    }
+}
+</style>

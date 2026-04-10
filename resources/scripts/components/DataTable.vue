@@ -1,10 +1,10 @@
 <template>
     <div class="datatable">
-        <div class="d-f flex-jc-sb flex-ai-fs">
+        <div class="d-f flex-jc-sb flex-ai-fs dt-controls">
             <div>
                 <slot name="actions"></slot>
             </div>
-            <div>
+            <div class="dt-controls-right">
                 <button @click="refreshDataTable"><i class="fas fa-sync-alt" :class="{ 'fa-spin': refreshingDataTable }"></i> Refresh</button>
                 <input type="search" v-model="filter" @input="filterItems" class="mt-a ml-0_5em" placeholder="Search...">
             </div>
@@ -92,19 +92,20 @@
             </template>
         </div>
         <div class="paginator f-r" :class="{ 'disable-all': loading }">
-            <button @click="fetchItemsForPage(paginator.firstPage)" :disabled="paginator.firstPage === paginator.currentPage">First</button>
+            <button class="paginator-first" @click="fetchItemsForPage(paginator.firstPage)" :disabled="paginator.firstPage === paginator.currentPage">First</button>
             <button @click="fetchItemsForPage(paginator.currentPage - 1)" :disabled="paginator.firstPage === paginator.currentPage">&lt;</button>
-            <button @click="fetchItemsForPage(pageSwitch - 3)" :class="{active: (pageSwitch - 3) === paginator.currentPage}" v-if="paginator.lastPage >= pageSwitch - 3">{{ pageSwitch - 3 }}</button>
-            <button @click="fetchItemsForPage(pageSwitch - 2)" :class="{active: (pageSwitch - 2) === paginator.currentPage}" v-if="paginator.lastPage >= pageSwitch - 2">{{ pageSwitch -2 }}</button>
-            <button @click="fetchItemsForPage(pageSwitch - 1)" :class="{active: (pageSwitch - 1) === paginator.currentPage}" v-if="paginator.lastPage >= pageSwitch - 1">{{ pageSwitch - 1 }}</button>
-            <button @click="fetchItemsForPage(pageSwitch)" :class="{active: pageSwitch === paginator.currentPage}" v-if="paginator.lastPage >= pageSwitch">{{ pageSwitch }}</button>
+            <button class="paginator-number" @click="fetchItemsForPage(pageSwitch - 3)" :class="{active: (pageSwitch - 3) === paginator.currentPage}" v-if="paginator.lastPage >= pageSwitch - 3">{{ pageSwitch - 3 }}</button>
+            <button class="paginator-number" @click="fetchItemsForPage(pageSwitch - 2)" :class="{active: (pageSwitch - 2) === paginator.currentPage}" v-if="paginator.lastPage >= pageSwitch - 2">{{ pageSwitch - 2 }}</button>
+            <button class="paginator-number" @click="fetchItemsForPage(pageSwitch - 1)" :class="{active: (pageSwitch - 1) === paginator.currentPage}" v-if="paginator.lastPage >= pageSwitch - 1">{{ pageSwitch - 1 }}</button>
+            <button class="paginator-number" @click="fetchItemsForPage(pageSwitch)" :class="{active: pageSwitch === paginator.currentPage}" v-if="paginator.lastPage >= pageSwitch">{{ pageSwitch }}</button>
             <template v-if="paginator.lastPage > 4">
-                <span>...</span>
-                <button @click="fetchItemsForPage(paginator.lastPage - 1)" v-if="(paginator.lastPage - 1) > 0 && paginator.firstPage !== (paginator.lastPage - 1) && (paginator.lastPage - 1) > 4" :class="{active: (paginator.lastPage - 1) === paginator.currentPage}">{{ paginator.lastPage - 1 }}</button>
-                <button @click="fetchItemsForPage(paginator.lastPage)" v-if="paginator.lastPage !== paginator.firstPage" :class="{active: paginator.lastPage === paginator.currentPage}">{{ paginator.lastPage }}</button>
+                <span class="paginator-ellipsis">...</span>
+                <button class="paginator-number" @click="fetchItemsForPage(paginator.lastPage - 1)" v-if="(paginator.lastPage - 1) > 0 && paginator.firstPage !== (paginator.lastPage - 1) && (paginator.lastPage - 1) > 4" :class="{active: (paginator.lastPage - 1) === paginator.currentPage}">{{ paginator.lastPage - 1 }}</button>
+                <button class="paginator-number" @click="fetchItemsForPage(paginator.lastPage)" v-if="paginator.lastPage !== paginator.firstPage" :class="{active: paginator.lastPage === paginator.currentPage}">{{ paginator.lastPage }}</button>
             </template>
+            <span class="paginator-info">Page {{ paginator.currentPage }} of {{ paginator.lastPage }}</span>
             <button @click="fetchItemsForPage(paginator.currentPage + 1)" :disabled="paginator.lastPage === paginator.currentPage">&gt;</button>
-            <button @click="fetchItemsForPage(paginator.lastPage)" :disabled="paginator.lastPage === paginator.currentPage">Last</button>
+            <button class="paginator-last" @click="fetchItemsForPage(paginator.lastPage)" :disabled="paginator.lastPage === paginator.currentPage">Last</button>
         </div>
     </div>
 </template>
@@ -350,7 +351,7 @@ export default {
 
 <style scoped>
 .datatable {
-    font-size: 13px;
+    font-size: var(--font-size-base);
 }
 
 .datatable .table-container {
@@ -501,5 +502,35 @@ export default {
 
 .paginator button:last-child {
     margin-right: 0;
+}
+
+@media (max-width: 768px) {
+    .datatable > .table-container > table {
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .dt-controls {
+        flex-wrap: wrap;
+        gap: 0.5em;
+    }
+
+    .dt-controls-right {
+        display: flex;
+        width: 100%;
+        align-items: center;
+        gap: 0.5em;
+    }
+
+    .dt-controls-right input[type="search"] {
+        flex: 1;
+        min-width: 0;
+        margin-left: 0;
+    }
+
+    .paginator-first,
+    .paginator-last,
+    .paginator-number,
+    .paginator-ellipsis { display: none; }
 }
 </style>

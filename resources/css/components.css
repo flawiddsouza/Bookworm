@@ -7,7 +7,7 @@
 
 .tabs > div {
     padding: 0.45em 0.85em;
-    font-size: 13px;
+    font-size: var(--font-size-base);
     color: var(--color-text-muted);
     cursor: pointer;
     user-select: none;
@@ -27,6 +27,13 @@
     font-weight: 600;
 }
 
+@media (max-width: 768px) {
+    .tabs {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+    }
+}
+
 /* ── Buttons ──────────────────────────────────────────────────── */
 
 button {
@@ -36,7 +43,7 @@ button {
     background: var(--color-primary);
     color: var(--color-text);
     font-family: inherit;
-    font-size: 13px;
+    font-size: var(--font-size-base);
     font-weight: 500;
     cursor: pointer;
     transition: background 0.12s;
@@ -78,11 +85,12 @@ table.table :is(th, td) {
 
 .tab-select {
     min-width: 120px;
-    padding: 0.5rem;
+    padding: 5px 8px;
     border: 1px solid var(--color-border);
     border-radius: 4px;
     background: white;
-    font-size: inherit;
+    font-size: var(--font-size-base);
+    font-family: inherit;
     cursor: pointer;
 }
 
@@ -98,7 +106,7 @@ table.table :is(th, td) {
     display: inline-block;
     padding: 2px 8px;
     border-radius: 10px;
-    font-size: 11px;
+    font-size: var(--font-size-sm);
     font-weight: 600;
     white-space: nowrap;
 }
@@ -113,7 +121,7 @@ table.table :is(th, td) {
 
 .form-group label {
     display: block;
-    font-size: 13px;
+    font-size: var(--font-size-base);
     font-weight: 600;
     margin-bottom: 4px;
     color: #333;
@@ -125,7 +133,7 @@ table.table :is(th, td) {
     padding: 7px 10px;
     border: 1px solid #d0d0d0;
     border-radius: 4px;
-    font-size: 13px;
+    font-size: var(--font-size-base);
     font-family: inherit;
     box-sizing: border-box;
 }
@@ -156,4 +164,17 @@ button.secondary {
 
 button.secondary:hover {
     background: var(--color-bg-subtle);
+}
+
+/* ── Paginator info (shared by DataTable and GridView) ────────── */
+
+.paginator-info { display: none; }
+
+@media (max-width: 768px) {
+    .paginator-info {
+        display: inline;
+        margin: 0 0.4em;
+        font-size: 12px;
+        color: #555;
+    }
 }

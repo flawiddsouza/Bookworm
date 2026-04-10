@@ -453,6 +453,8 @@ export default {
         let viewMode = localStorage.getItem('Bookworm-ManageBooks-ViewMode')
         if(viewMode) {
             this.viewMode = viewMode
+        } else if (window.innerWidth <= 768) {
+            this.viewMode = 'grid'
         }
     }
 }

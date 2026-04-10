@@ -10,6 +10,8 @@
     --color-bg-subtle: #fafafa;
     --color-text: #1a1a1a;
     --color-text-muted: #666;
+    --font-size-base: 13px;
+    --font-size-sm: 11px;
 
     /* keep old name for any external references */
     --border-color: var(--color-border);
